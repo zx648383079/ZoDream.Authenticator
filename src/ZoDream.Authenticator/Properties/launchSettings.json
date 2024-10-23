@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ZoDream.Authenticator (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "ZoDream.Authenticator (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
