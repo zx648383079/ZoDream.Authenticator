@@ -19,13 +19,13 @@ using ZoDream.Authenticator.ViewModels;
 
 namespace ZoDream.Authenticator.Dialogs
 {
-    public sealed partial class PasswordDialog : ContentDialog
+    public sealed partial class EditDialog : ContentDialog
     {
-        public PasswordDialog()
+        public EditDialog()
         {
             this.InitializeComponent();
         }
 
-        public PasswordDialogViewModel ViewModel => (PasswordDialogViewModel)DataContext;
+        public EditDialogViewModel ViewModel => (EditDialogViewModel)DataContext;
     }
 }

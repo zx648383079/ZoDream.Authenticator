@@ -1,10 +1,6 @@
 ﻿using Microsoft.UI.Xaml.Controls;
 using Microsoft.Windows.AppLifecycle;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.ApplicationModel.Activation;
 using ZoDream.Authenticator.Pages;
 
@@ -14,23 +10,60 @@ namespace ZoDream.Authenticator.ViewModels
     {
 
         private Frame _rootFrame;
+        private Frame? _innerFrame;
+
+        internal void BindFrame(Frame? frame)
+        {
+            _innerFrame = frame;
+            if (frame is not null)
+            {
+                Navigate<EntryPage>();
+            } else
+            {
+                BackEnabled = false;
+            }
+        }
+
+        private bool IsRootPage(Type page)
+        {
+            return page == typeof(StartupPage) || page == typeof(WorkspacePage);
+        }
 
         public void Navigate<T>() where T : Page
         {
-            _rootFrame.Navigate(typeof(T));
-            BackEnabled = typeof(T) != typeof(StartupPage);
+            var page = typeof(T);
+            if (IsRootPage(page))
+            {
+                _rootFrame.Navigate(page);
+            } else
+            {
+                _innerFrame?.Navigate(page);
+            }
+            BackEnabled = _innerFrame is not null &&  _innerFrame.CanGoBack;
         }
 
         public void Navigate<T>(object parameter) where T : Page
         {
-            _rootFrame.Navigate(typeof(T), parameter);
-            BackEnabled = typeof(T) != typeof(StartupPage);
+            var page = typeof(T);
+            if (IsRootPage(page))
+            {
+                _rootFrame.Navigate(page, parameter);
+            }
+            else
+            {
+                _innerFrame?.Navigate(page, parameter);
+            }
+            BackEnabled = _innerFrame is not null && _innerFrame.CanGoBack;
         }
 
         public void NavigateBack()
         {
-            _rootFrame.GoBack();
-            BackEnabled = false;
+            if (_innerFrame is null)
+            {
+                return;
+            }
+            _innerFrame.GoBack();
+            BackEnabled = _innerFrame.CanGoBack;
         }
         /// <summary>
         ///  起始页

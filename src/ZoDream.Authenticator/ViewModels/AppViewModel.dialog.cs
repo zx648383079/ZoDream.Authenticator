@@ -35,5 +35,27 @@ namespace ZoDream.Authenticator.ViewModels
             target.XamlRoot = BaseXamlRoot;
             return target.ShowAsync();
         }
+
+        public async Task<bool> OpenFormAsync(ContentDialog target)
+        {
+            target.XamlRoot = BaseXamlRoot;
+            if (target.DataContext is not IFormValidator model)
+            {
+                return await target.ShowAsync() == ContentDialogResult.Primary;
+            }
+            while (true)
+            {
+                var res = await target.ShowAsync();
+                if (res != ContentDialogResult.Primary)
+                {
+                    break;
+                }
+                if (model.IsValid)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

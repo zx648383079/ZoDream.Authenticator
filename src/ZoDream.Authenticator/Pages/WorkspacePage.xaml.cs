@@ -28,9 +28,17 @@ namespace ZoDream.Authenticator.Pages
             this.InitializeComponent();
         }
 
-        private void NavigationView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
-        {
 
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+            App.ViewModel.BindFrame(null);
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            App.ViewModel.BindFrame(InnerFrame);
         }
     }
 }

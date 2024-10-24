@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ctl="using:ZoDream.Authenticator.Controls"
+    xmlns:vm="using:ZoDream.Authenticator.ViewModels">
+
+    <DataTemplate x:Key="GroupItemTemplate">
+        <NavigationViewItem
+            Content="{Binding Name}"
+            MenuItemsSource="{Binding Children}"
+            Tag="{Binding Tag}">
+            <NavigationViewItem.Icon>
+                <FontIcon Glyph="{Binding Icon}" />
+            </NavigationViewItem.Icon>
+        </NavigationViewItem>
+    </DataTemplate>
+
+    <Style TargetType="ListBoxItem">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    </Style>
+
+    <DataTemplate x:Key="EntryItemTemplate">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <CheckBox Grid.RowSpan="2" />
+            <Border Grid.RowSpan="2" Grid.Column="1">
+                <Image Source="{Binding Icon}" />
+            </Border>
+            <TextBlock Grid.Column="2" Text="{Binding Title}" />
+            <TextBlock
+                Grid.Row="1"
+                Grid.Column="2"
+                Text="{Binding Account}" />
+            <CommandBar Grid.RowSpan="2" Grid.Column="3">
+                <AppBarButton Icon="Edit" Label="编辑" />
+                <AppBarButton Icon="Delete" Label="删除" />
+                <CommandBar.SecondaryCommands>
+                    <AppBarButton Icon="Copy" Label="复制账号" />
+                    <AppBarButton Icon="Copy" Label="复制密码" />
+                    <AppBarButton Icon="Copy" Label="复制网址" />
+                    <AppBarButton Icon="Globe" Label="打开网址" />
+                </CommandBar.SecondaryCommands>
+            </CommandBar>
+        </Grid>
+    </DataTemplate>
+
+    <ctl:EntryItemTemplateSelector x:Key="EntryTemplateSelector" DefaultTemplate="{StaticResource EntryItemTemplate}" />
+</ResourceDictionary>

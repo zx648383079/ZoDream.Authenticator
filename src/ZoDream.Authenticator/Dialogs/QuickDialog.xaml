@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:ZoDream.Authenticator.Dialogs"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:ZoDream.Authenticator.ViewModels"
     Title="快速添加"
     PrimaryButtonText="确认"
     SecondaryButtonText="取消"
@@ -13,11 +14,14 @@
     <ContentDialog.Resources>
         <ResourceDictionary Source="ms-appx:///Themes/InputStyle.xaml" />
     </ContentDialog.Resources>
+    <ContentDialog.DataContext>
+        <vm:QuickDialogViewModel />
+    </ContentDialog.DataContext>
 
     <StackPanel>
-        <TextBox Header="名称" />
-        <TextBox Header="账号" />
-        <TextBox Header="密码" />
-        <TextBox Header="网址" />
+        <TextBox Header="名称" Text="{Binding Title, Mode=TwoWay}" />
+        <TextBox Header="账号" Text="{Binding Account, Mode=TwoWay}" />
+        <PasswordBox Header="密码" Password="{Binding Password, Mode=TwoWay}" />
+        <TextBox Header="网址" Text="{Binding Url, Mode=TwoWay}" />
     </StackPanel>
 </ContentDialog>

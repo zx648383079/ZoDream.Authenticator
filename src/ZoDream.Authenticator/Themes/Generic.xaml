@@ -3,17 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:ZoDream.Authenticator">
 
-    <Style TargetType="local:AppTitleBar" >
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="local:AppTitleBar">
-                    <Border
-                        Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}">
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="ms-appx:///Themes/TitleBar.xaml" />
+    </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

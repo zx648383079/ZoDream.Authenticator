@@ -18,7 +18,7 @@
             Width="250"
             HorizontalAlignment="Center"
             VerticalAlignment="Center">
-            <TextBox PlaceholderText="Master Password" Text="{Binding Account, Mode=TwoWay}" />
+            <PasswordBox Password="{Binding Account, Mode=TwoWay}" PlaceholderText="Master Password" />
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
