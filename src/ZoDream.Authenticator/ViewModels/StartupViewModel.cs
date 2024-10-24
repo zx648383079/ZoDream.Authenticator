@@ -17,6 +17,8 @@ namespace ZoDream.Authenticator.ViewModels
             EnterCommand = new RelayCommand(TapEnter);
         }
 
+        public string Version { get; private set; } = App.ViewModel.Version;
+
         private string _account = string.Empty;
 
         public string Account {

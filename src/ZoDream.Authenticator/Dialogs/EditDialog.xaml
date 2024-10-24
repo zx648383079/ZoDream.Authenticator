@@ -19,12 +19,18 @@
         <vm:EditDialogViewModel />
     </ContentDialog.DataContext>
 
-    <StackPanel>
-        <TextBox Header="名称" />
-        <TextBox Header="账号" />
-        <TextBox Header="备用" />
-        <TextBox Header="密码" />
-        <TextBox Header="网址" />
-        <RichEditBox Header="备注" />
-    </StackPanel>
+    <ScrollViewer>
+        <StackPanel>
+            <TextBox Header="名称" />
+            <TextBox Header="账号" />
+            <TextBox Header="备用" />
+            <TextBox Header="密码" />
+            <TextBox Header="网址" />
+            <TextBox
+                Height="160"
+                AcceptsReturn="True"
+                Header="备注"
+                TextWrapping="Wrap" />
+        </StackPanel>
+    </ScrollViewer>
 </ContentDialog>

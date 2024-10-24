@@ -14,25 +14,48 @@
     </Page.DataContext>
 
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="*" MinWidth="250" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
         <StackPanel
-            Width="250"
-            HorizontalAlignment="Center"
+            Grid.RowSpan="2"
+            Width="200"
             VerticalAlignment="Center">
-            <PasswordBox Password="{Binding Account, Mode=TwoWay}" PlaceholderText="Master Password" />
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="auto" />
-                </Grid.ColumnDefinitions>
-                <TextBox PlaceholderText="Key File" Text="{Binding Password, Mode=TwoWay}" />
-                <Button Grid.Column="1">
-                    <FontIcon Glyph="&#xE8E5;" />
-                </Button>
-            </Grid>
-            <Button
-                HorizontalAlignment="Stretch"
-                Command="{Binding EnterCommand}"
-                Content="Enter" />
+            <Image Source="/Assets/Logo.png" />
+            <TextBlock
+                HorizontalAlignment="Center"
+                Style="{StaticResource CaptionTextBlockStyle}"
+                Text="{Binding Version}" />
         </StackPanel>
+        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="欢迎使用" />
+            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="这一个个人密码管理器" />
+            <StackPanel
+                Width="250"
+                Margin="0,60,0,0"
+                HorizontalAlignment="Left">
+                <PasswordBox Password="{Binding Account, Mode=TwoWay}" PlaceholderText="Master Password" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox PlaceholderText="Key File" Text="{Binding Password, Mode=TwoWay}" />
+                    <Button Grid.Column="1">
+                        <FontIcon Glyph="&#xE8E5;" />
+                    </Button>
+                </Grid>
+                <Button
+                    HorizontalAlignment="Stretch"
+                    Command="{Binding EnterCommand}"
+                    Content="Enter" />
+            </StackPanel>
+        </StackPanel>
+
     </Grid>
 </Page>

@@ -21,7 +21,85 @@
     <StackPanel>
         <TextBox Header="名称" Text="{Binding Title, Mode=TwoWay}" />
         <TextBox Header="账号" Text="{Binding Account, Mode=TwoWay}" />
-        <PasswordBox Header="密码" Password="{Binding Password, Mode=TwoWay}" />
+        <TextBlock Margin="{StaticResource PasswordBoxTopHeaderMargin}" Text="密码" />
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <PasswordBox Password="{Binding Password, Mode=TwoWay}" PasswordRevealMode="Hidden" />
+            <ToggleButton Grid.Column="1">
+                <FontIcon Glyph="&#xE7B3;" />
+            </ToggleButton>
+            <Button Grid.Column="2">
+                <FontIcon Glyph="&#xE70D;" />
+                <Button.Flyout>
+                    <Flyout Placement="Top">
+                        <Grid Width="250">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Button
+                                Grid.Row="3"
+                                Content="取消"
+                                Style="{StaticResource DialogButton}" />
+                            <Button
+                                Grid.Row="3"
+                                Grid.Column="2"
+                                Content="确定"
+                                Style="{StaticResource DialogButton}" />
+
+                            <TextBox Grid.Row="0" Grid.ColumnSpan="3" />
+
+                            <TextBlock
+                                Grid.Row="1"
+                                Style="{StaticResource InlineHeader}"
+                                Text="类型" />
+                            <ComboBox
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Grid.ColumnSpan="2"
+                                HorizontalAlignment="Stretch" />
+
+                            <Grid Grid.Row="2" Grid.ColumnSpan="3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <TextBlock Style="{StaticResource InlineHeader}" Text="长度" />
+                                <Slider Grid.Column="1" Grid.ColumnSpan="2" />
+
+                                <TextBlock
+                                    Grid.Row="1"
+                                    Style="{StaticResource InlineHeader}"
+                                    Text="数字" />
+                                <ToggleSwitch Grid.Row="1" Grid.Column="2" />
+                                <TextBlock
+                                    Grid.Row="2"
+                                    Style="{StaticResource InlineHeader}"
+                                    Text="符号" />
+                                <ToggleSwitch Grid.Row="2" Grid.Column="2" />
+                            </Grid>
+                        </Grid>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
+        </Grid>
         <TextBox Header="网址" Text="{Binding Url, Mode=TwoWay}" />
     </StackPanel>
 </ContentDialog>

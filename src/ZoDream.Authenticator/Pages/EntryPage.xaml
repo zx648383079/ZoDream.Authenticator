@@ -46,10 +46,13 @@
         <Grid Grid.Row="2" Margin="8,4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
-                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
             <TextBlock />
-            <ProgressBar Grid.Column="1" Value="50" />
+            <ProgressBar
+                Grid.Column="1"
+                Width="120"
+                Value="50" />
         </Grid>
     </Grid>
 </Page>
