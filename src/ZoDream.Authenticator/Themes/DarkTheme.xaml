@@ -5,14 +5,18 @@
     <Color x:Key="PrimaryTextColor">#fff</Color>
 
     <Color x:Key="BodyColor">#333</Color>
+    <Color x:Key="PanelColor">#000</Color>
     <Color x:Key="BodyTextColor">#fff</Color>
     <Color x:Key="SecondaryTextColor">#767676</Color>
 
+    <Color x:Key="BorderColor">#7676676</Color>
+    <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" />
 
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}" />
     <SolidColorBrush x:Key="PrimaryTextBrush" Color="{StaticResource PrimaryTextColor}" />
 
     <SolidColorBrush x:Key="BodyBrush" Color="{StaticResource BodyColor}" />
+    <SolidColorBrush x:Key="PanelBrush" Color="{StaticResource PanelColor}" />
     <SolidColorBrush x:Key="BodyTextBrush" Color="{StaticResource BodyTextColor}" />
     <SolidColorBrush x:Key="SecondaryTextBrush" Color="{StaticResource SecondaryTextColor}" />
 </ResourceDictionary>

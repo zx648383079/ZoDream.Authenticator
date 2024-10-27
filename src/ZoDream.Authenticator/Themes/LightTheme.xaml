@@ -9,6 +9,8 @@
     <Color x:Key="BodyTextColor">#333</Color>
     <Color x:Key="SecondaryTextColor">#747474</Color>
 
+    <Color x:Key="BorderColor">#f4f4f4</Color>
+    <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" />
 
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}" />
     <SolidColorBrush x:Key="PrimaryTextBrush" Color="{StaticResource PrimaryTextColor}" />

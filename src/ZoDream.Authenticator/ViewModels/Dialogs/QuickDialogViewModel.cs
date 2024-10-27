@@ -7,7 +7,7 @@ using ZoDream.Shared.ViewModel;
 
 namespace ZoDream.Authenticator.ViewModels
 {
-    public class QuickDialogViewModel: BindableBase, IFormValidator
+    public class QuickDialogViewModel: BindableBase, IFormValidator, IEntryForm
     {
 
         private string _title = string.Empty;
@@ -42,5 +42,20 @@ namespace ZoDream.Authenticator.ViewModels
 
         public bool IsValid => !string.IsNullOrWhiteSpace(Title) 
             && !string.IsNullOrWhiteSpace(Account);
+
+        public bool TryParse(out EntryItemViewModel entry)
+        {
+            if (!IsValid)
+            {
+                entry = null;
+                return false;
+            }
+            entry = new()
+            {
+                Title = Title,
+                Account = Account,
+            };
+            return true;
+        }
     }
 }

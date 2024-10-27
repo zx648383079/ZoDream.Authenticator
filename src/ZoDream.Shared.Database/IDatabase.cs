@@ -1,6 +1,8 @@
-﻿namespace ZoDream.Shared.Database
+﻿using System;
+
+namespace ZoDream.Shared.Database
 {
-    public interface IDatabase
+    public interface IDatabase: IDisposable
     {
 
     }

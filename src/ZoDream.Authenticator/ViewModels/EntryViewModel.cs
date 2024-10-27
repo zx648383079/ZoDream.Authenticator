@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.UI.Xaml.Controls;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -35,17 +36,30 @@ namespace ZoDream.Authenticator.ViewModels
 
         private async void TapAdd(object? _)
         {
-            var dialog = new QuickDialog();
-            var model = dialog.ViewModel;
+            var picker = new EntryPickerDialog();
+            var model = picker.ViewModel;
+            if (await _app.OpenDialogAsync(picker) == ContentDialogResult.Secondary)
+            {
+                return;
+            }
+            var pageType = model.SelectedItem?.TargetType;
+            if (pageType is null)
+            {
+                return;
+            }
+            var obj = Activator.CreateInstance(pageType);
+            if (obj is not ContentDialog dialog)
+            {
+                return;
+            }
             if (!await _app.OpenFormAsync(dialog))
             {
                 return;
             }
-            EntryItems.Add(new()
+            if (dialog.DataContext is IEntryForm form && form.TryParse(out var item))
             {
-                Title = model.Title,
-                Account = model.Account,
-            });
+                EntryItems.Add(item);
+            }
         }
 
         private async void TapEdit(object? _)

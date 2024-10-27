@@ -21,7 +21,10 @@
     <None Remove="Dialogs\ConfirmDialog.xaml" />
     <None Remove="Dialogs\EditDialog.xaml" />
     <None Remove="Dialogs\EntryDialog.xaml" />
+    <None Remove="Dialogs\EntryPickerDialog.xaml" />
+    <None Remove="Dialogs\FileEntryDialog.xaml" />
     <None Remove="Dialogs\GroupDialog.xaml" />
+    <None Remove="Dialogs\NoteEntryDialog.xaml" />
     <None Remove="Dialogs\PasswordDialog.xaml" />
     <None Remove="Dialogs\QuickDialog.xaml" />
     <None Remove="Pages\EntryPage.xaml" />
@@ -78,6 +81,15 @@
     <None Update="Assets\Logo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Page Update="Dialogs\EntryPickerDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Dialogs\NoteEntryDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Dialogs\FileEntryDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Dialogs\EditDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
