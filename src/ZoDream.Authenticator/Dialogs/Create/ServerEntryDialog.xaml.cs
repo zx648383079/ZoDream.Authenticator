@@ -12,23 +12,17 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
-using ZoDream.Authenticator.ViewModels;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
-namespace ZoDream.Authenticator.Pages
+namespace ZoDream.Authenticator.Dialogs
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
-    public sealed partial class StartupPage : Page
+    public sealed partial class ServerEntryDialog : ContentDialog
     {
-        public StartupPage()
+        public ServerEntryDialog()
         {
             this.InitializeComponent();
         }
-
-        internal StartupViewModel ViewModel => (StartupViewModel)DataContext;
     }
 }

@@ -16,9 +16,11 @@ namespace ZoDream.Authenticator.ViewModels
             });
         }
 
+        public SettingContainer Setting { get; } = new();
+
         public async Task InitializeAsync()
         {
-            
+            await Setting.LoadAsync();
         }
     }
 }

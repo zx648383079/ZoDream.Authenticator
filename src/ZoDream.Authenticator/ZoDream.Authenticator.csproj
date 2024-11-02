@@ -18,15 +18,24 @@
     <Content Remove="Assets\Logo.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Dialogs\ApiEntryDialog.xaml" />
+    <None Remove="Dialogs\BankCardEntryDialog.xaml" />
     <None Remove="Dialogs\ConfirmDialog.xaml" />
+    <None Remove="Dialogs\Create\WalletEntryDialog.xaml" />
+    <None Remove="Dialogs\DatabaseEntryDialog.xaml" />
     <None Remove="Dialogs\EditDialog.xaml" />
+    <None Remove="Dialogs\EmailEntryDialog.xaml" />
     <None Remove="Dialogs\EntryDialog.xaml" />
     <None Remove="Dialogs\EntryPickerDialog.xaml" />
     <None Remove="Dialogs\FileEntryDialog.xaml" />
+    <None Remove="Dialogs\FtpEntryDialog.xaml" />
     <None Remove="Dialogs\GroupDialog.xaml" />
+    <None Remove="Dialogs\LicenseEntryDialog.xaml" />
     <None Remove="Dialogs\NoteEntryDialog.xaml" />
     <None Remove="Dialogs\PasswordDialog.xaml" />
     <None Remove="Dialogs\QuickDialog.xaml" />
+    <None Remove="Dialogs\ServerEntryDialog.xaml" />
+    <None Remove="Dialogs\WirelessEntryDialog.xaml" />
     <None Remove="Pages\EntryPage.xaml" />
     <None Remove="Pages\StartupPage.xaml" />
     <None Remove="Pages\WorkspacePage.xaml" />
@@ -65,6 +74,7 @@
     <ProjectCapability Include="Msix" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ZoDream.Shared.Controls\ZoDream.Shared.Controls.csproj" />
     <ProjectReference Include="..\ZoDream.Shared.Database\ZoDream.Shared.Database.csproj" />
     <ProjectReference Include="..\ZoDream.Shared\ZoDream.Shared.csproj" />
   </ItemGroup>
@@ -81,6 +91,33 @@
     <None Update="Assets\Logo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Page Update="Dialogs\EmailEntryDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Dialogs\WirelessEntryDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Dialogs\LicenseEntryDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Dialogs\ApiEntryDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Dialogs\DatabaseEntryDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Dialogs\FtpEntryDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Dialogs\BankCardEntryDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Dialogs\ServerEntryDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Dialogs\Create\WalletEntryDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Dialogs\EntryPickerDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

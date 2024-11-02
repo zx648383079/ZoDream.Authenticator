@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentDialog
+    x:Class="ZoDream.Authenticator.Dialogs.EmailEntryDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:ZoDream.Authenticator.Dialogs"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:ZoDream.Authenticator.ViewModels"
+    Title="Email"
+    PrimaryButtonText="确认"
+    SecondaryButtonText="取消"
+    mc:Ignorable="d">
+    <ContentDialog.Resources>
+        <ResourceDictionary Source="ms-appx:///Themes/InputStyle.xaml" />
+    </ContentDialog.Resources>
+    <ContentDialog.DataContext>
+        <vm:ServerDialogViewModel />
+    </ContentDialog.DataContext>
+    <StackPanel>
+        <TextBox Header="名称" Text="{Binding Title, Mode=TwoWay}" />
+        <TextBox Header="Type" Text="{Binding Url, Mode=TwoWay}" />
+        <TextBox Header="Server" Text="{Binding Url, Mode=TwoWay}" />
+        <TextBox Header="Port" Text="{Binding Url, Mode=TwoWay}" />
+        <TextBox Header="Username" Text="{Binding Account, Mode=TwoWay}" />
+        <PasswordBox Header="密码" Password="{Binding Password, Mode=TwoWay}" />
+        <TextBox Header="Security" Text="{Binding Url, Mode=TwoWay}" />
+        <TextBox Header="Auth method" Text="{Binding Account, Mode=TwoWay}" />
+        <TextBox Header="SMTP server" Text="{Binding Account, Mode=TwoWay}" />
+        <TextBox Header="SMTP port" Text="{Binding Account, Mode=TwoWay}" />
+        <TextBox Header="SMTP username" Text="{Binding Account, Mode=TwoWay}" />
+        <TextBox Header="SMTP password" Text="{Binding Account, Mode=TwoWay}" />
+    </StackPanel>
+</ContentDialog>

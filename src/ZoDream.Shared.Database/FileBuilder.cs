@@ -14,7 +14,7 @@ namespace ZoDream.Shared.Database
         {
             _fileName = fileName;
             _cipher = cipher;
-            BaseStream = File.OpenRead(_fileName);
+            BaseStream = File.Open(_fileName, FileMode.OpenOrCreate);
         }
 
         private readonly string _fileName;

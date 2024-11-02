@@ -5,6 +5,6 @@
         public byte[] Decrypt(byte[] input);
         public byte[] Encrypt(byte[] input);
 
-        
+        public byte[] Signature();
     }
 }

@@ -58,6 +58,11 @@ namespace ZoDream.Authenticator.ViewModels
 
         public void NavigateBack()
         {
+            if (_rootFrame.Content is StartupPage o)
+            {
+                o.ViewModel.IsNextStep = false;
+                return;
+            }
             if (_innerFrame is null)
             {
                 return;

@@ -7,6 +7,7 @@
     xmlns:local="using:ZoDream.Authenticator.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:ZoDream.Authenticator.ViewModels"
+    xmlns:win="using:ZoDream.Shared.Controls"
     mc:Ignorable="d">
 
     <Page.DataContext>
@@ -35,18 +36,53 @@
         <StackPanel Grid.Column="1" VerticalAlignment="Center">
             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="欢迎使用" />
             <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="这一个个人密码管理器" />
+            <StackPanel Visibility="{Binding IsNextStep, Converter={StaticResource ToggleCvt}, ConverterParameter=False}">
+                <win:SettingCard
+                    Margin="0,40,0,0"
+                    Command="{Binding OpenCommand}"
+                    Description="选择一个已存在文件"
+                    Header="打开文件"
+                    IsActionIconVisible="False"
+                    IsClickEnabled="True">
+                    <win:SettingCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE838;" />
+                    </win:SettingCard.HeaderIcon>
+                </win:SettingCard>
+                <win:SettingCard
+                    Command="{Binding CreateCommand}"
+                    Description="创建新的"
+                    Header="创建新"
+                    IsActionIconVisible="False"
+                    IsClickEnabled="True">
+                    <win:SettingCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE710;" />
+                    </win:SettingCard.HeaderIcon>
+                </win:SettingCard>
+            </StackPanel>
             <StackPanel
                 Width="250"
                 Margin="0,60,0,0"
-                HorizontalAlignment="Left">
-                <PasswordBox Password="{Binding Account, Mode=TwoWay}" PlaceholderText="Master Password" />
+                HorizontalAlignment="Left"
+                Visibility="{Binding IsNextStep, Converter={StaticResource ToggleCvt}}">
+                <PasswordBox Password="{Binding Password, Mode=TwoWay}" PlaceholderText="Master Password" />
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
                         <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBox PlaceholderText="Key File" Text="{Binding Password, Mode=TwoWay}" />
-                    <Button Grid.Column="1">
+                    <TextBox PlaceholderText="Key File" Text="{Binding KeyFile, Mode=TwoWay}" />
+                    <Button
+                        Grid.Column="1"
+                        Command="{Binding CreateKeyCommand}"
+                        ToolTipService.ToolTip="创建新的密钥"
+                        Visibility="{Binding IsCreateNew, Converter={StaticResource ToggleCvt}}">
+                        <FontIcon Glyph="&#xE82E;" />
+                    </Button>
+                    <Button
+                        Grid.Column="2"
+                        Command="{Binding PickCommand}"
+                        ToolTipService.ToolTip="选择已有的">
                         <FontIcon Glyph="&#xE8E5;" />
                     </Button>
                 </Grid>

@@ -15,7 +15,9 @@ namespace ZoDream.Shared.Database
 
         public string Account { get; set; } = string.Empty;
 
-        public int PropertyOffset { get; set; }
+        public long Offset { get; set; }
+
+        public long PropertyOffset { get; set; }
 
         public int PropertyCount { get; set; }
 
@@ -24,6 +26,7 @@ namespace ZoDream.Shared.Database
         public void Read(BinaryReader reader)
         {
             Type = (EntryType)reader.ReadByte();
+            PropertyCount = reader.ReadByte();
             var length = reader.ReadByte();
             Title = Encoding.UTF8.GetString(reader.ReadBytes(length));
             GroupId = reader.ReadByte();
@@ -32,12 +35,12 @@ namespace ZoDream.Shared.Database
                 length = reader.ReadByte();
                 Account = Encoding.UTF8.GetString(reader.ReadBytes(length));
             }
-            PropertyCount = reader.ReadByte();
         }
 
         public void Write(BinaryWriter writer)
         {
             writer.Write((byte)Type);
+            writer.Write((byte)PropertyCount);
             var buffer = Encoding.UTF8.GetBytes(Title);
             writer.Write((byte)buffer.Length);
             writer.Write(buffer);
@@ -48,7 +51,7 @@ namespace ZoDream.Shared.Database
                 writer.Write((byte)buffer.Length);
                 writer.Write(buffer);
             }
-            writer.Write((byte)PropertyCount);
+            
         }
     }
 }
