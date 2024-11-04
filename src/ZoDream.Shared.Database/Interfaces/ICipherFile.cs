@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace ZoDream.Shared.Database
+﻿namespace ZoDream.Shared.Database
 {
     public interface ICipherFile
     {

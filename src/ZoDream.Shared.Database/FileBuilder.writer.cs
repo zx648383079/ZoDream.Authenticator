@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ZoDream.Shared.Database
 {
@@ -14,6 +10,10 @@ namespace ZoDream.Shared.Database
 
         public void Write(IFileFormatter data)
         {
+            if (data is FileHeader h)
+            {
+                h.ValidityCode = _cipher.Signature();
+            }
             data.Write(Writer);
         }
 

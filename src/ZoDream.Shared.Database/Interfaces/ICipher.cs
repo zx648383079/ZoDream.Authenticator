@@ -1,6 +1,8 @@
-﻿namespace ZoDream.Shared.Database
+﻿using System;
+
+namespace ZoDream.Shared.Database
 {
-    public interface ICipher
+    public interface ICipher: IDisposable
     {
         public byte[] Decrypt(byte[] input);
         public byte[] Encrypt(byte[] input);

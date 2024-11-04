@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ZoDream.Shared.Database
 {
@@ -17,6 +13,13 @@ namespace ZoDream.Shared.Database
             BaseStream = File.Open(_fileName, FileMode.OpenOrCreate);
         }
 
+        public FileBuilder(string fileName, ICipher cipher, bool isOpen)
+        {
+            _fileName = fileName;
+            _cipher = cipher;
+            BaseStream = File.Open(_fileName, isOpen ? FileMode.Open : FileMode.Create);
+        }
+
         private readonly string _fileName;
         private readonly ICipher _cipher;
         public Stream BaseStream { get; private set; }
@@ -24,7 +27,8 @@ namespace ZoDream.Shared.Database
 
         public void Dispose()
         {
-            
+            _cipher.Dispose();
+            BaseStream.Dispose();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace ZoDream.Shared.Database
 {
@@ -12,6 +13,10 @@ namespace ZoDream.Shared.Database
         {
             var header = new FileHeader();
             header.Read(Reader);
+            if (!header.ValidityCode.SequenceEqual(_cipher.Signature()))
+            {
+                throw new CryptographicException("cipher is error");
+            }
             return header;
         }
 

@@ -6,6 +6,10 @@ namespace ZoDream.Shared.Database
 {
     public class FileCipher(Stream stream) : ICipher, ICipherFile
     {
+        public FileCipher(string fileName): this(File.OpenRead(fileName))
+        {
+            
+        }
         public byte[] Decrypt(byte[] input)
         {
             for (int i = 0; i < input.Length; i++)
@@ -45,6 +49,11 @@ namespace ZoDream.Shared.Database
             }
             stream.Flush();
             stream.Seek(0, SeekOrigin.Begin);
+        }
+
+        public void Dispose()
+        {
+            stream.Dispose();
         }
     }
 }

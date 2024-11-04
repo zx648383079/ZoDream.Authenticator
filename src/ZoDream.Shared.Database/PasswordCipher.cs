@@ -24,6 +24,8 @@ namespace ZoDream.Shared.Database
             return input;
         }
 
+
+
         public byte[] Encrypt(byte[] input)
         {
             for (int i = 0; i < input.Length; i++)
@@ -36,6 +38,10 @@ namespace ZoDream.Shared.Database
         public byte[] Signature()
         {
             return MD5.HashData(iv);
+        }
+
+        public void Dispose()
+        {
         }
     }
 }

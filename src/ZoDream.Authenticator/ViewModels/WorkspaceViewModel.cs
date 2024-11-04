@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using ZoDream.Authenticator.Dialogs;
 using ZoDream.Authenticator.Pages;
@@ -18,10 +13,7 @@ namespace ZoDream.Authenticator.ViewModels
         public WorkspaceViewModel()
         {
             GroupCommand = new RelayCommand<string>(TapGroup);
-            GroupItems.Add(new("私人", "\uE705", "home"));
-            GroupItems.Add(new("工作", "\uEC64", "home"));
-            GroupItems.Add(new("验证器", "\uEE6F", "home"));
-            GroupItems.Add(new("文件", "\uE8B7", "home"));
+            LoadAsync();
         }
 
         private readonly AppViewModel _app = App.ViewModel;
@@ -45,7 +37,11 @@ namespace ZoDream.Authenticator.ViewModels
 
         private void TapGroup(string tag)
         {
-            Debug.WriteLine(tag);
+            if (tag.StartsWith("home_"))
+            {
+                _app.Navigate<EntryPage>(tag[6..]);
+                return;
+            }
             switch (tag)
             {
                 case "__add":
@@ -74,6 +70,27 @@ namespace ZoDream.Authenticator.ViewModels
         private void TapSetting()
         {
 
+        }
+
+        private void LoadAsync()
+        {
+            if (_app.Database is null)
+            {
+                return;
+            }
+            GroupItems.Clear();
+            var items = _app.Database.FetchGroup();
+            GroupItems.Add(new("私人", "\uE705", "home_0"));
+            GroupItems.Add(new("工作", "\uEC64", "home_1"));
+            GroupItems.Add(new("验证器", "\uEE6F", "home_2"));
+            GroupItems.Add(new("文件", "\uE8B7", "home_3"));
+            foreach (var item in items)
+            {
+                if (GroupItems.Count > item.ParentId)
+                {
+                    GroupItems[item.ParentId].Children.Add(new(item.Name, "home_"+item.Id));
+                }
+            }
         }
     }
 }

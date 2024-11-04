@@ -88,5 +88,23 @@ namespace ZoDream.Authenticator.ViewModels
             package.SetText("Copy this text");
             Clipboard.SetContent(package);
         }
+
+        public void LoadAsync()
+        {
+            if (_app.Database is null)
+            {
+                return;
+            }
+            EntryItems.Clear();
+            var items = _app.Database.FetchEntry();
+            foreach (var item in items)
+            {
+                EntryItems.Add(new()
+                {
+                    Account = item.Account,
+                    Title = item.Title,
+                });
+            }
+        }
     }
 }

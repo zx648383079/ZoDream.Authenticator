@@ -1,7 +1,11 @@
-﻿using System;
+﻿using Microsoft.UI.Xaml.Controls;
+using System;
+using System.IO;
 using System.Windows.Input;
+using Windows.Storage.AccessCache;
 using Windows.Storage.Pickers;
 using ZoDream.Authenticator.Pages;
+using ZoDream.Shared.Database;
 using ZoDream.Shared.ViewModel;
 
 namespace ZoDream.Authenticator.ViewModels
@@ -15,6 +19,7 @@ namespace ZoDream.Authenticator.ViewModels
             CreateCommand = new RelayCommand(TapCreate);
             EnterCommand = new RelayCommand(TapEnter);
             PickCommand = new RelayCommand(TapPick);
+            CreateKeyCommand = new RelayCommand(TapCreateKey);
             _fileName = App.ViewModel.Setting.Get<string>(SettingNames.DatabaseFileName);
             if (!string.IsNullOrWhiteSpace(_fileName))
             {
@@ -88,6 +93,9 @@ namespace ZoDream.Authenticator.ViewModels
                 return;
             }
             KeyFile = items.Path;
+            var cipher = new FileCipher(await items.OpenStreamForWriteAsync());
+            cipher.Generate();
+            cipher.Dispose();
         }
 
         private async void TapOpen(object? _)
@@ -103,6 +111,7 @@ namespace ZoDream.Authenticator.ViewModels
             IsNextStep = true;
             IsCreateNew = false;
             _fileName = items.Path;
+            StorageApplicationPermissions.FutureAccessList.AddOrReplace(AppConstants.WorkspaceToken, items);
         }
 
         private async void TapCreate(object? _)
@@ -116,16 +125,36 @@ namespace ZoDream.Authenticator.ViewModels
                 return;
             }
             _fileName = items.Path;
+            StorageApplicationPermissions.FutureAccessList.AddOrReplace(AppConstants.WorkspaceToken, items);
             IsNextStep = true;
             IsCreateNew = true;
         }
 
-        private void TapEnter(object? _)
+        private async void TapEnter(object? _)
         {
-            if (string.IsNullOrWhiteSpace(Password) || string.IsNullOrWhiteSpace(KeyFile))
+            if (string.IsNullOrWhiteSpace(Password) && string.IsNullOrWhiteSpace(KeyFile))
             {
-
+                await App.ViewModel.ConfirmAsync("密码不能为空");
+                return;
             }
+            var db = new Database(new DatabaseOptions(_fileName, Password, KeyFile));
+            try
+            {
+                if (IsCreateNew)
+                {
+                    db.Create();
+                }
+                else
+                {
+                    db.Open();
+                }
+            }
+            catch (CryptographicException)
+            {
+                await App.ViewModel.ConfirmAsync("密码不正确");
+                return;
+            }
+            App.ViewModel.Database = db;
             App.ViewModel.Navigate<WorkspacePage>();
         }
     }

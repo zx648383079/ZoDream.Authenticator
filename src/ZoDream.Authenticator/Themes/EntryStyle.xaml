@@ -54,5 +54,42 @@
         </Grid>
     </DataTemplate>
 
-    <ctl:EntryItemTemplateSelector x:Key="EntryTemplateSelector" DefaultTemplate="{StaticResource EntryItemTemplate}" />
+    <DataTemplate x:Key="IconEntryItemTemplate">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <CheckBox Grid.RowSpan="2" />
+            <Border Grid.RowSpan="2" Grid.Column="1">
+                <FontIcon Glyph="{Binding Icon}" />
+            </Border>
+            <TextBlock Grid.Column="2" Text="{Binding Title}" />
+            <TextBlock
+                Grid.Row="1"
+                Grid.Column="2"
+                Text="{Binding Account}" />
+            <CommandBar Grid.RowSpan="2" Grid.Column="3">
+                <AppBarButton Icon="Edit" Label="编辑" />
+                <AppBarButton Icon="Delete" Label="删除" />
+                <CommandBar.SecondaryCommands>
+                    <AppBarButton Icon="Copy" Label="复制账号" />
+                    <AppBarButton Icon="Copy" Label="复制密码" />
+                    <AppBarButton Icon="Copy" Label="复制网址" />
+                    <AppBarButton Icon="Globe" Label="打开网址" />
+                </CommandBar.SecondaryCommands>
+            </CommandBar>
+        </Grid>
+    </DataTemplate>
+
+    <ctl:EntryItemTemplateSelector
+        x:Key="EntryTemplateSelector"
+        DefaultTemplate="{StaticResource EntryItemTemplate}"
+        IconTemplate="{StaticResource IconEntryItemTemplate}" />
 </ResourceDictionary>

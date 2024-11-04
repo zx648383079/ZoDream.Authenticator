@@ -28,11 +28,16 @@ namespace ZoDream.Authenticator.ViewModels
             
         }
 
-        public GroupItemViewModel(string name, string icon, string tag)
+        public GroupItemViewModel(string name, string tag)
         {
             Name = name;
-            Icon = icon; 
             Tag = tag;
+        }
+
+        public GroupItemViewModel(string name, string icon, string tag)
+            : this(name, tag)
+        {
+            Icon = icon; 
         }
     }
 }

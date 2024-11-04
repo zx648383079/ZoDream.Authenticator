@@ -13,12 +13,13 @@ namespace ZoDream.Authenticator.Controls
     {
 
         public DataTemplate? DefaultTemplate { get; set; }
+        public DataTemplate? IconTemplate { get; set; }
 
         protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
-            if (item is EntryItemViewModel)
+            if (item is EntryItemViewModel e)
             {
-                return DefaultTemplate;
+                return string.IsNullOrWhiteSpace(e.Icon) || e.Icon.Length == 1 ? IconTemplate : DefaultTemplate;
             }
             return base.SelectTemplateCore(item, container);
         }
