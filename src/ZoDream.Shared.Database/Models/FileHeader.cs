@@ -8,14 +8,12 @@ namespace ZoDream.Shared.Database
     {
         const string Signature = "ZRDB";
         public DatabaseVersion Version { get; set; } = DatabaseVersion.V1;
-        public byte[] ValidityCode { get; set; } = new byte[32];
+        public byte[] ValidityCode { get; set; } = new byte[16];
         public long GroupOffset { get; set; }
         public int GroupCount { get; set; }
 
         public long EntryOffset { get; set; }
         public int EntryCount { get; set; }
-
-        public long EntryDataOffset { get; set; }
 
         public void Read(BinaryReader reader)
         {
@@ -28,7 +26,7 @@ namespace ZoDream.Shared.Database
             GroupCount = reader.ReadByte();
             EntryOffset = reader.ReadUInt32() + GroupOffset;
             EntryCount = reader.ReadUInt16();
-            EntryDataOffset = reader.ReadUInt32() + EntryOffset;
+            reader.BaseStream.Seek(40, SeekOrigin.Begin);
         }
 
         public void Write(BinaryWriter writer)
@@ -41,17 +39,16 @@ namespace ZoDream.Shared.Database
             {
                 GroupOffset = writer.BaseStream.Position + 20;
                 EntryOffset += GroupOffset;
-                EntryDataOffset += EntryOffset;
             }
             writer.Write((uint)GroupOffset);
             writer.Write((byte)GroupCount);
             writer.Write((uint)(EntryOffset - GroupOffset));
             writer.Write((ushort)EntryCount);
-            writer.Write((uint)(EntryDataOffset - EntryOffset));
-            if (EntryDataOffset > writer.BaseStream.Length)
+            if (writer.BaseStream.Length < 40)
             {
-                writer.BaseStream.SetLength(EntryDataOffset + 1024);
+                writer.BaseStream.SetLength(40);
             }
+            writer.BaseStream.Seek(40, SeekOrigin.Begin);
         }
     }
 }

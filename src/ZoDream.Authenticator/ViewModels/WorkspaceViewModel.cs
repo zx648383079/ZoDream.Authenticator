@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Windows.Input;
 using ZoDream.Authenticator.Dialogs;
 using ZoDream.Authenticator.Pages;
+using ZoDream.Shared.Database;
 using ZoDream.Shared.ViewModel;
 
 namespace ZoDream.Authenticator.ViewModels
@@ -64,7 +65,13 @@ namespace ZoDream.Authenticator.ViewModels
             {
                 return;
             }
-            GroupItems[model.ParentIndex].Children.Add(new(model.Name, "", "_item"));
+            var data = new GroupItemViewModel()
+            {
+                Name = model.Name,
+                ParentId = model.ParentIndex
+            };
+            _app.Database?.Insert(data);
+            GroupItems[model.ParentIndex].Children.Add(data);
         }
 
         private void TapSetting()
@@ -79,7 +86,7 @@ namespace ZoDream.Authenticator.ViewModels
                 return;
             }
             GroupItems.Clear();
-            var items = _app.Database.FetchGroup();
+            var items = _app.Database.Fetch<GroupItemViewModel>();
             GroupItems.Add(new("私人", "\uE705", "home_0"));
             GroupItems.Add(new("工作", "\uEC64", "home_1"));
             GroupItems.Add(new("验证器", "\uEE6F", "home_2"));
@@ -88,7 +95,7 @@ namespace ZoDream.Authenticator.ViewModels
             {
                 if (GroupItems.Count > item.ParentId)
                 {
-                    GroupItems[item.ParentId].Children.Add(new(item.Name, "home_"+item.Id));
+                    GroupItems[item.ParentId].Children.Add(item);
                 }
             }
         }

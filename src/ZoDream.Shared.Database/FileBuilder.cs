@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Reflection.PortableExecutable;
 
 namespace ZoDream.Shared.Database
 {
-    public partial class FileBuilder : IDisposable
+    internal partial class FileBuilder : IDisposable
     {
 
         public FileBuilder(string fileName, ICipher cipher)
@@ -30,5 +31,24 @@ namespace ZoDream.Shared.Database
             _cipher.Dispose();
             BaseStream.Dispose();
         }
+        /// <summary>
+        /// 跳转到开始的位置
+        /// </summary>
+        /// <param name="pos"></param>
+        public void Seek(long pos)
+        {
+            BaseStream.Seek(pos, SeekOrigin.Begin);
+        }
+        /// <summary>
+        /// 跳转到记录自定义属性开始的位置
+        /// </summary>
+        /// <param name="header"></param>
+        /// <param name="record"></param>
+        public void Seek(FileHeader header, ITableRecord record)
+        {
+            Seek(record.EntryDataOffset + (record is GroupRecord ? header.GroupOffset : header.EntryOffset));
+        }
+
+        
     }
 }

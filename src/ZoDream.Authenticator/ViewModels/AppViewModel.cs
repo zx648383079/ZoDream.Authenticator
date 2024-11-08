@@ -28,10 +28,16 @@ namespace ZoDream.Authenticator.ViewModels
             await Setting.LoadAsync();
         }
 
-        public void Dispose()
+        public async Task FinalizeAsync()
         {
+            await Setting.SaveAsync();
             Database?.Dispose();
             Clipboard.Clear();
+        }
+
+        public void Dispose()
+        {
+            FinalizeAsync().GetAwaiter().GetResult();
         }
     }
 }

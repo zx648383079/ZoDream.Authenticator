@@ -1,12 +1,159 @@
 ﻿using System;
 using System.IO;
+using System.Text;
+using ZoDream.Shared.Database.Models;
 
 namespace ZoDream.Shared.Database
 {
-    public partial class FileBuilder
+    internal partial class FileBuilder
     {
 
         private BinaryWriter Writer => new(BaseStream);
+
+        public GroupRecord Write(FileHeader header, IGroupEntity entity, long lockedLength = 0)
+        {
+            var writer = Writer;
+            var buffer = Encoding.UTF8.GetBytes(entity.Name);
+            var pos = writer.BaseStream.Position;
+            var group = new GroupRecord
+            {
+                Id = entity.Id,
+                EntryOffset = pos - header.GroupOffset,
+                ParentId = entity.ParentId,
+                NameLength = buffer.Length
+            };
+            AddSpace(pos, group.EntryLength - lockedLength);
+            writer.Write((byte)group.ParentId);
+            writer.Write((byte)buffer.Length);
+            writer.Write(buffer);
+            return group;
+        }
+
+        public EntryRecord Write(FileHeader header, IEntryEntity entity, long lockedLength = 0)
+        {
+            var writer = Writer;
+            var pos = writer.BaseStream.Position;
+            var group = new EntryRecord
+            {
+                Id = entity.Id,
+                EntryOffset = pos - header.GroupOffset,
+                GroupId = entity.GroupId,
+                Type = TypeMapper.Convert(entity),
+            };
+            var names = TypeMapper.EntryPropertyNames(group.Type);
+            var hasAccount = TypeMapper.HasAccountProperty(group.Type);
+            var begin = hasAccount ? 2 : 1;
+            group.PropertiesLength = new int[names.Length];
+            var data = new IStreamFormatter[names.Length];
+            for (var i = 0; i < names.Length; i++)
+            {
+                var value = TypeMapper.GetProperty<string>(entity, names[i], i - begin);
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    data[i] = new ByteFormatter([]);
+                }
+                else if(names[i] == "FileName")
+                {
+                    data[i] = new FileFormatter(value);
+                } else
+                {
+                    data[i] = new StringFormatter(value);
+                }
+                group.PropertiesLength[i] = data[i].Length;
+            }
+            AddSpace(pos, group.EntryLength - lockedLength);
+            writer.Write((byte)group.Type);
+            writer.Write((byte)group.GroupId);
+            writer.Write((byte)(names.Length - begin));
+            writer.Write((byte)group.PropertiesLength[0]);
+            if (hasAccount)
+            {
+                writer.Write((byte)group.PropertiesLength[1]);
+            }
+            if (group.IsLargeLength)
+            {
+                for (var i = begin; i < group.PropertiesLength.Length; i++)
+                {
+                    writer.Write((uint)group.PropertiesLength[i]);
+                }
+            } else
+            {
+                for (var i = begin; i < group.PropertiesLength.Length; i++)
+                {
+                    writer.Write((ushort)group.PropertiesLength[i]);
+                }
+            }
+            foreach (var item in data)
+            {
+                item.CopyTo(writer.BaseStream);
+                item.Dispose();
+            }
+            return group;
+        }
+
+        public EntryRecord Write(FileHeader header, object entity, long lockedLength = 0)
+        {
+            var writer = Writer;
+            var pos = writer.BaseStream.Position;
+            var group = new EntryRecord
+            {
+                Id = TypeMapper.GetProperty<int>(entity, "Id"),
+                EntryOffset = pos - header.GroupOffset,
+                GroupId = TypeMapper.GetProperty<int>(entity, "GroupId"),
+                Type = TypeMapper.Convert(entity),
+            };
+            var names = TypeMapper.EntryPropertyNames(group.Type);
+            var hasAccount = TypeMapper.HasAccountProperty(group.Type);
+            var begin = hasAccount ? 2 : 1;
+            group.PropertiesLength = new int[names.Length];
+            var data = new IStreamFormatter[names.Length];
+            for (var i = 0; i < names.Length; i++)
+            {
+                var value = TypeMapper.GetProperty<string>(entity, names[i], i - begin);
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    data[i] = new ByteFormatter([]);
+                }
+                else if (names[i] == "FileName")
+                {
+                    data[i] = new FileFormatter(value);
+                }
+                else
+                {
+                    data[i] = new StringFormatter(value);
+                }
+                group.PropertiesLength[i] = data[i].Length;
+            }
+            AddSpace(pos, group.EntryLength - lockedLength);
+            writer.Write((byte)group.Type);
+            writer.Write((byte)group.GroupId);
+            writer.Write((byte)(names.Length - begin));
+            writer.Write((byte)group.PropertiesLength[0]);
+            if (hasAccount)
+            {
+                writer.Write((byte)group.PropertiesLength[1]);
+            }
+            if (group.IsLargeLength)
+            {
+                for (var i = begin; i < group.PropertiesLength.Length; i++)
+                {
+                    writer.Write((uint)group.PropertiesLength[i]);
+                }
+            }
+            else
+            {
+                for (var i = begin; i < group.PropertiesLength.Length; i++)
+                {
+                    writer.Write((ushort)group.PropertiesLength[i]);
+                }
+            }
+            foreach (var item in data)
+            {
+                item.CopyTo(writer.BaseStream);
+                item.Dispose();
+            }
+            return group;
+        }
 
         public void Write(IFileFormatter data)
         {
@@ -37,7 +184,7 @@ namespace ZoDream.Shared.Database
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="length"></param>
-        protected void AddSpace(long position, long length)
+        public void AddSpace(long position, long length)
         {
             if (length == 0)
             {

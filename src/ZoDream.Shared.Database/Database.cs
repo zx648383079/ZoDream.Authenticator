@@ -18,11 +18,7 @@ namespace ZoDream.Shared.Database
         public void Create()
         {
             _builder = new FileBuilder(_options.FileName, Convert(_options), false);
-            _header = new FileHeader()
-            {
-                EntryOffset = 1024,
-                EntryDataOffset = 1024,
-            };
+            _header = new FileHeader();
             _builder.Write(_header);
         }
 
@@ -30,12 +26,24 @@ namespace ZoDream.Shared.Database
         {
             _builder = new FileBuilder(_options.FileName, Convert(_options), true);
             _header = _builder.ReadHeader();
+            foreach (var item in _builder.ReadGroup(_header))
+            {
+                _groupItems.Add(item);
+            }
+            foreach (var item in _builder.ReadEntry(_header))
+            {
+                _entryItems.Add(item);
+            }
         }
 
-       
+        public void Flush()
+        {
+
+        }
 
         public void Dispose()
         {
+            _builder?.Dispose();
         }
 
         public static ICipher Convert(IDatabaseOptions options)

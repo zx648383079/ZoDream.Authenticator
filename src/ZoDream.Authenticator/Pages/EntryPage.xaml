@@ -31,6 +31,19 @@
                 Command="{Binding AddCommand}"
                 Icon="Add"
                 Label="添加" />
+            <AppBarButton
+                Command="{Binding ScanCommand}"
+                Icon="Scan"
+                Label="扫码2FA" />
+            <AppBarButton
+                Command="{Binding SearchCommand}"
+                Icon="Find"
+                Label="搜索" />
+            <AppBarButton
+                Command="{Binding SaveCommand}"
+                Icon="Save"
+                Label="保存"
+                Visibility="{Binding IsUpdated, Converter={StaticResource ToggleCvt}}" />
         </CommandBar>
 
         <ListBox

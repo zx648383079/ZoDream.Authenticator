@@ -4,12 +4,16 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ZoDream.Shared.Database;
 using ZoDream.Shared.ViewModel;
 
 namespace ZoDream.Authenticator.ViewModels
 {
-    public class GroupItemViewModel: BindableBase
+    public class GroupItemViewModel: BindableBase, IGroupEntity
     {
+        public int Id { get; set; }
+
+        public int ParentId { get; set; }
 
         public string Name { get; set; } = string.Empty;
 
@@ -39,5 +43,6 @@ namespace ZoDream.Authenticator.ViewModels
         {
             Icon = icon; 
         }
+
     }
 }

@@ -1,10 +1,7 @@
 ﻿using Microsoft.UI.Xaml.Controls;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 using System.Windows.Input;
 using Windows.ApplicationModel.DataTransfer;
 using ZoDream.Authenticator.Dialogs;
@@ -17,6 +14,9 @@ namespace ZoDream.Authenticator.ViewModels
         public EntryViewModel()
         {
             AddCommand = new RelayCommand(TapAdd);
+            ScanCommand = new RelayCommand(TapScan);
+            SaveCommand = new RelayCommand(TapSave);
+            SearchCommand = new RelayCommand(TapSearch);
             EditCommand = new RelayCommand(TapEdit);
             ViewCommand = new RelayCommand(TapView);
         }
@@ -30,9 +30,52 @@ namespace ZoDream.Authenticator.ViewModels
             set => Set(ref _entryItems, value);
         }
 
+        private bool _isUpdated;
+
+        public bool IsUpdated {
+            get => _isUpdated;
+            set => Set(ref _isUpdated, value);
+        }
+
+
         public ICommand AddCommand { get; private set; }
+        public ICommand ScanCommand { get; private set; }
+        public ICommand SearchCommand { get; private set; }
         public ICommand EditCommand { get; private set; }
         public ICommand ViewCommand { get; private set; }
+        public ICommand SaveCommand { get; private set; }
+
+        private async void TapScan(object? _)
+        {
+            var dialog = new ScanDialog();
+            var res = await _app.OpenDialogAsync(dialog);
+            if (res != ContentDialogResult.None)
+            {
+                return;
+            }
+            Debug.WriteLine(dialog.Text);
+        }
+
+        private void TapSave(object? _)
+        {
+            if (!IsUpdated)
+            {
+                return;
+            }
+            _app.Database?.Flush();
+            IsUpdated = false;
+        }
+
+        private async void TapSearch(object? _)
+        {
+            var dialog = new SearchDialog();
+            var res = await _app.OpenFormAsync(dialog);
+            if (!res)
+            {
+                return;
+            }
+
+        }
 
         private async void TapAdd(object? _)
         {
@@ -58,7 +101,9 @@ namespace ZoDream.Authenticator.ViewModels
             }
             if (dialog.DataContext is IEntryForm form && form.TryParse(out var item))
             {
+                _app.Database?.Insert(item);
                 EntryItems.Add(item);
+                IsUpdated = true;
             }
         }
 
@@ -96,14 +141,10 @@ namespace ZoDream.Authenticator.ViewModels
                 return;
             }
             EntryItems.Clear();
-            var items = _app.Database.FetchEntry();
+            var items = _app.Database.Fetch(type => new EntryItemViewModel());
             foreach (var item in items)
             {
-                EntryItems.Add(new()
-                {
-                    Account = item.Account,
-                    Title = item.Title,
-                });
+                EntryItems.Add(item);
             }
         }
     }

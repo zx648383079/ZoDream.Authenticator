@@ -132,9 +132,10 @@ namespace ZoDream.Authenticator.ViewModels
 
         private async void TapEnter(object? _)
         {
+            var app = App.ViewModel;
             if (string.IsNullOrWhiteSpace(Password) && string.IsNullOrWhiteSpace(KeyFile))
             {
-                await App.ViewModel.ConfirmAsync("密码不能为空");
+                await app.ConfirmAsync("密码不能为空");
                 return;
             }
             var db = new Database(new DatabaseOptions(_fileName, Password, KeyFile));
@@ -151,11 +152,13 @@ namespace ZoDream.Authenticator.ViewModels
             }
             catch (CryptographicException)
             {
-                await App.ViewModel.ConfirmAsync("密码不正确");
+                await app.ConfirmAsync("密码不正确");
+                db.Dispose();
                 return;
             }
-            App.ViewModel.Database = db;
-            App.ViewModel.Navigate<WorkspacePage>();
+            app.Setting.Set(SettingNames.DatabaseFileName, _fileName);
+            app.Database = db;
+            app.Navigate<WorkspacePage>();
         }
     }
 }

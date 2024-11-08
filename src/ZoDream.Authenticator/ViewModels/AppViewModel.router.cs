@@ -32,14 +32,19 @@ namespace ZoDream.Authenticator.ViewModels
         public void Navigate<T>() where T : Page
         {
             var page = typeof(T);
+
             if (IsRootPage(page))
             {
                 _rootFrame.Navigate(page);
-            } else
+            }
+            else
             {
                 _innerFrame?.Navigate(page);
             }
-            BackEnabled = _innerFrame is not null &&  _innerFrame.CanGoBack;
+            if (!_isBackEnabled || _innerFrame is not null)
+            {
+                BackEnabled = _innerFrame is not null && _innerFrame.CanGoBack;
+            }
         }
 
         public void Navigate<T>(object parameter) where T : Page
@@ -53,7 +58,10 @@ namespace ZoDream.Authenticator.ViewModels
             {
                 _innerFrame?.Navigate(page, parameter);
             }
-            BackEnabled = _innerFrame is not null && _innerFrame.CanGoBack;
+            if (!_isBackEnabled || _innerFrame is not null)
+            {
+                BackEnabled = _innerFrame is not null && _innerFrame.CanGoBack;
+            }
         }
 
         public void NavigateBack()

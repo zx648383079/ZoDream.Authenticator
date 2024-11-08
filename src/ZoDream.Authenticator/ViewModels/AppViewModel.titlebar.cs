@@ -4,8 +4,6 @@ using Microsoft.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.Graphics;
 using ZoDream.Authenticator.Controls;
@@ -20,8 +18,11 @@ namespace ZoDream.Authenticator.ViewModels
 
         public ICommand? BackCommand { get; private set; }
 
-        public bool BackEnabled {
+        private bool _isBackEnabled = false;
+        public bool BackEnabled 
+        {
             set {
+                _isBackEnabled = value;
                 if (TitleBar is not null)
                 {
                     TitleBar.BackVisible = value ? Visibility.Visible : Visibility.Collapsed;
@@ -79,6 +80,10 @@ namespace ZoDream.Authenticator.ViewModels
         {
             TitleBar = titleBar;
             TitleBar.BackCommand = BackCommand;
+            if (_isBackEnabled)
+            {
+                BackEnabled = true;
+            }
         }
 
         private void TapBack()
@@ -101,6 +106,7 @@ namespace ZoDream.Authenticator.ViewModels
             SetTitleBar(titleBar);
             SetNonClientRegionOnTitleBar(0, 0, buttonWidth, 48);
         }
+
         /// <summary>
         /// 设置 title bar 可点击控件
         /// </summary>

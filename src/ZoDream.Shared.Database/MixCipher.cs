@@ -25,10 +25,10 @@ namespace ZoDream.Shared.Database
 
         public byte[] Signature()
         {
-            var buffer = new byte[32 * items.Length];
+            var buffer = new byte[16 * items.Length];
             for (var i = 0; i < items.Length; i++)
             {
-                Array.Copy(items[i].Signature(), 0, buffer, i * 32, 32);
+                Array.Copy(items[i].Signature(), 0, buffer, i * 16, 16);
             }
             return MD5.HashData(Encrypt(buffer));
         }

@@ -25,8 +25,6 @@ namespace ZoDream.Authenticator.Controls
             DependencyProperty.Register(nameof(BackVisible), typeof(Visibility),
                 typeof(AppTitleBar), new PropertyMetadata(Visibility.Collapsed));
 
-
-
         public string Title {
             get { return (string)GetValue(TitleProperty); }
             set { SetValue(TitleProperty, value); }
