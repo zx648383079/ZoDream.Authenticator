@@ -18,7 +18,6 @@
     <Content Remove="Assets\Logo.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Controls\BarcodeBox.xaml" />
     <None Remove="Dialogs\ApiEntryDialog.xaml" />
     <None Remove="Dialogs\BankCardEntryDialog.xaml" />
     <None Remove="Dialogs\ConfirmDialog.xaml" />
@@ -42,6 +41,7 @@
     <None Remove="Pages\EntryPage.xaml" />
     <None Remove="Pages\StartupPage.xaml" />
     <None Remove="Pages\WorkspacePage.xaml" />
+    <None Remove="Themes\BarcodeBox.xaml" />
     <None Remove="Themes\BaseStyle.xaml" />
     <None Remove="Themes\DarkTheme.xaml" />
     <None Remove="Themes\EntryStyle.xaml" />
@@ -96,7 +96,7 @@
     <None Update="Assets\Logo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Page Update="Controls\BarcodeBox.xaml">
+    <Page Update="Themes\BarcodeBox.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Update="Dialogs\ScanDialog.xaml">

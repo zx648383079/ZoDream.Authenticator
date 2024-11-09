@@ -91,9 +91,21 @@ namespace ZoDream.Shared.Database
             {
                 return attr.First().Type;
             }
-            if (entity is ILoginEntryEntity)
+            if (entity is IAuthEntryEntity)
             {
-                return EntryType.None;
+                return EntryType.Authentication;
+            }
+            if (entity is ITOTPEntryEntity)
+            {
+                return EntryType.ToTp;
+            }
+            if (entity is IWirelessEntryEntity)
+            {
+                return EntryType.Wireless;
+            }
+            if (entity is IPasswordEntryEntity)
+            {
+                return EntryType.Password;
             }
             if (entity is IFileEntryEntity)
             {
@@ -103,6 +115,7 @@ namespace ZoDream.Shared.Database
             {
                 return EntryType.Note;
             }
+            
             return EntryType.None;
         }
 
@@ -110,6 +123,10 @@ namespace ZoDream.Shared.Database
         {
             return type switch
             {
+                EntryType.Wireless => ["Title", "Account", "Password", "Security"],
+                EntryType.ToTp => ["Title", "Account", "Secret", "Url", "Algorithm", "Period", "Digits"],
+                EntryType.Authentication => ["Title", "Account", "Email", "Mobile", "Password", "Url"],
+                EntryType.Password => ["Title", "Account", "Password", "Url"],
                 EntryType.File => ["Title", "FileName"],
                 EntryType.Note => ["Title", "Content"],
                 _ => ["Title", "Account", "Password", "Url"]

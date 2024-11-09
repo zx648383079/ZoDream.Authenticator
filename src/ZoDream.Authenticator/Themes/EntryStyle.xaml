@@ -47,6 +47,7 @@
                 <CommandBar.SecondaryCommands>
                     <AppBarButton Icon="Copy" Label="复制账号" />
                     <AppBarButton Icon="Copy" Label="复制密码" />
+                    <AppBarButton Icon="Copy" Label="复制动态码" />
                     <AppBarButton Icon="Copy" Label="复制网址" />
                     <AppBarButton Icon="Globe" Label="打开网址" />
                 </CommandBar.SecondaryCommands>

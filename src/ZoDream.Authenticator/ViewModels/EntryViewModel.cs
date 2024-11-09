@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.Windows.Input;
 using Windows.ApplicationModel.DataTransfer;
 using ZoDream.Authenticator.Dialogs;
+using ZoDream.Authenticator.ViewModels.Models;
+using ZoDream.Shared.Database;
 using ZoDream.Shared.ViewModel;
 
 namespace ZoDream.Authenticator.ViewModels
@@ -23,9 +25,9 @@ namespace ZoDream.Authenticator.ViewModels
 
         private readonly AppViewModel _app = App.ViewModel;
 
-        private ObservableCollection<EntryItemViewModel> _entryItems = [];
+        private ObservableCollection<EntryBaseViewModel> _entryItems = [];
 
-        public ObservableCollection<EntryItemViewModel> EntryItems {
+        public ObservableCollection<EntryBaseViewModel> EntryItems {
             get => _entryItems;
             set => Set(ref _entryItems, value);
         }
@@ -53,7 +55,19 @@ namespace ZoDream.Authenticator.ViewModels
             {
                 return;
             }
-            Debug.WriteLine(dialog.Text);
+            if (WirelessEntryViewModel.TryParse(dialog.Text, out var model))
+            {
+                _app.Database?.Insert(model);
+                EntryItems.Add(model);
+                IsUpdated = true;
+                return;
+            }
+            if (TOTPEntryViewModel.TryParse(dialog.Text, out var mo))
+            {
+                _app.Database?.Insert(mo);
+                EntryItems.Add(mo);
+                IsUpdated = true;
+            }
         }
 
         private void TapSave(object? _)
@@ -131,7 +145,11 @@ namespace ZoDream.Authenticator.ViewModels
         {
             var package = new DataPackage();
             package.SetText("Copy this text");
-            Clipboard.SetContent(package);
+            Clipboard.SetContentWithOptions(package, new()
+            {
+                IsAllowedInHistory = false,
+                IsRoamable = false,
+            });
         }
 
         public void LoadAsync()
@@ -141,11 +159,21 @@ namespace ZoDream.Authenticator.ViewModels
                 return;
             }
             EntryItems.Clear();
-            var items = _app.Database.Fetch(type => new EntryItemViewModel());
+            var items = _app.Database.Fetch(Create);
             foreach (var item in items)
             {
                 EntryItems.Add(item);
             }
+        }
+
+        private EntryBaseViewModel Create(EntryType type)
+        {
+            return type switch
+            {
+                EntryType.ToTp => new TOTPEntryViewModel(),
+                EntryType.Wireless => new WirelessEntryViewModel(),
+                _ => new EntryItemViewModel(),
+            };
         }
     }
 }

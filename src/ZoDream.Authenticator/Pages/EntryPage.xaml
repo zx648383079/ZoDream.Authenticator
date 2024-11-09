@@ -23,7 +23,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition />
-            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
 
         <CommandBar HorizontalAlignment="Center">
@@ -55,17 +54,5 @@
                 <bhv:ListItemDoubleClickBehavior Command="{Binding EditCommand}" />
             </ivy:Interaction.Behaviors>
         </ListBox>
-
-        <Grid Grid.Row="2" Margin="8,4">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition Width="auto" />
-            </Grid.ColumnDefinitions>
-            <TextBlock />
-            <ProgressBar
-                Grid.Column="1"
-                Width="120"
-                Value="50" />
-        </Grid>
     </Grid>
 </Page>

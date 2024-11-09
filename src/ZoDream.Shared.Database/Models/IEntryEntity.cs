@@ -13,11 +13,18 @@
         public string Account { get; set; }
     }
 
-    public interface ILoginEntryEntity : IAccountEntryEntity
+    public interface IPasswordEntryEntity : IAccountEntryEntity
     {
         public string Password { get; }
         public string Url { get; }
     }
+
+    public interface IAuthEntryEntity : IPasswordEntryEntity
+    {
+        public string Email { get; }
+        public string Mobile { get; }
+    }
+
     public interface IFileEntryEntity : IEntryEntity
     {
         public string FileName { get; }
@@ -28,10 +35,20 @@
         public string Content { get; }
     }
 
+    public interface IWirelessEntryEntity : IAccountEntryEntity
+    {
+        public string Password { get; }
+        /// <summary>
+        /// 协议
+        /// </summary>
+        public string Security { get; }
+    }
     public interface ITOTPEntryEntity : IAccountEntryEntity
     {
         public string Secret { get; }
         public string Url { get; }
+
+        public string Algorithm { get; }
         /// <summary>
         /// 动态码位数
         /// </summary>

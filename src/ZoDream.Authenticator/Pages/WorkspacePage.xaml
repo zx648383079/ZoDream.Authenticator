@@ -29,6 +29,23 @@
         <ivy:Interaction.Behaviors>
             <bhv:NavigationViewItemBehavior Command="{Binding GroupCommand}" />
         </ivy:Interaction.Behaviors>
-        <Frame x:Name="InnerFrame" />
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+            <Frame x:Name="InnerFrame" />
+            <Grid Grid.Row="2" Margin="8,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock />
+                <ProgressBar
+                    Grid.Column="1"
+                    Width="120"
+                    Value="50" />
+            </Grid>
+        </Grid>
     </NavigationView>
 </Page>

@@ -1,26 +1,25 @@
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System;
 using System.Linq;
+using Windows.Graphics.Imaging;
 using Windows.Media.Capture.Frames;
 using Windows.Media.Capture;
 using Windows.Media.MediaProperties;
 using Windows.Storage.Streams;
-using Windows.Graphics.Imaging;
 using ZXing;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace ZoDream.Authenticator.Controls
 {
-    public sealed partial class BarcodeBox : UserControl
+    [TemplatePart(Name = CaptureName, Type = typeof(MediaPlayerElement))]
+    public sealed class BarcodeBox : Control
     {
+        private const string CaptureName = "PART_CaptureElement";
+
         public BarcodeBox()
         {
-            this.InitializeComponent();
-            
+            DefaultStyleKey = typeof(BarcodeBox);
             Loaded += BarcodeBox_Loaded;
             Unloaded += BarcodeBox_Unloaded;
         }
@@ -29,6 +28,19 @@ namespace ZoDream.Authenticator.Controls
         private MediaCapture? _mediaCapture;
         private MediaFrameReader? _frameReader;
         private readonly BarcodeReader<SoftwareBitmap> _reader = new(o => new SoftwareBitmapLuminanceSource(o));
+
+
+
+        public string Tooltip {
+            get { return (string)GetValue(TooltipProperty); }
+            set { SetValue(TooltipProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for Tooltip.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty TooltipProperty =
+            DependencyProperty.Register("Tooltip", typeof(string), typeof(BarcodeBox), new PropertyMetadata(string.Empty));
+
+
 
         public string Text {
             get { return (string)GetValue(TextProperty); }
@@ -40,6 +52,15 @@ namespace ZoDream.Authenticator.Controls
             DependencyProperty.Register("Text", typeof(string), typeof(BarcodeBox), new PropertyMetadata(string.Empty));
 
         public event TextChangedEventHandler? TextChanged;
+
+        private MediaPlayerElement? _player;
+
+        protected override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
+            _player = GetTemplateChild(CaptureName) as MediaPlayerElement;
+            VisualStateManager.GoToState(this, "Normal", false);
+        }
 
         public void Start()
         {
@@ -60,8 +81,11 @@ namespace ZoDream.Authenticator.Controls
                 _frameReader = null;
             }
             _mediaCapture = null;
-            captureElement.Source = null;
-            captureElement.SetMediaPlayer(null);
+            if (_player != null)
+            {
+                _player.Source = null;
+                _player.SetMediaPlayer(null);
+            }
         }
 
         private async void StartCaptureElement()
@@ -69,7 +93,7 @@ namespace ZoDream.Authenticator.Controls
             var groups = await MediaFrameSourceGroup.FindAllAsync();
             if (groups.Count == 0)
             {
-                tbkTip.Text = "No camera devices found.";
+                Tooltip = "No camera devices found.";
                 return;
             }
             var mediaFrameSourceGroup = groups.First();
@@ -94,7 +118,10 @@ namespace ZoDream.Authenticator.Controls
             {
                 return;
             }
-            captureElement.Source = Windows.Media.Core.MediaSource.CreateFromMediaFrameSource(frameSource);
+            if (_player is not null)
+            {
+                _player.Source = Windows.Media.Core.MediaSource.CreateFromMediaFrameSource(frameSource);
+            }
             _frameReader = await _mediaCapture.CreateFrameReaderAsync(frameSource);
             if (_frameReader is null)
             {
@@ -108,6 +135,10 @@ namespace ZoDream.Authenticator.Controls
         private void FrameReader_FrameArrived(MediaFrameReader sender, MediaFrameArrivedEventArgs args)
         {
             var frame = sender.TryAcquireLatestFrame();
+            if (frame is null)
+            {
+                return;
+            }
             var softwareBitmap = frame.VideoMediaFrame.GetVideoFrame()
                 .SoftwareBitmap;
             var res = _reader.Decode(softwareBitmap);

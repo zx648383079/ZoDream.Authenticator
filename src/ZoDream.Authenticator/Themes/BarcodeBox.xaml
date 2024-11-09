@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ctl="using:ZoDream.Authenticator.Controls">
+
+
+    <Style TargetType="ctl:BarcodeBox">
+        <Setter Property="Tooltip" Value="提示：请将二维码图案放置在取景框内" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ctl:BarcodeBox">
+                    <Grid>
+                        <!--<skia:SKXamlCanvas x:Name="captureElement" />-->
+                        <MediaPlayerElement
+                            x:Name="PART_CaptureElement"
+                            AutoPlay="True"
+                            Stretch="Uniform" />
+                        <!--  Tips  -->
+                        <TextBlock
+                            Margin="36"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Bottom"
+                            Foreground="Red"
+                            Text="{TemplateBinding Tooltip}" />
+
+                        <Grid Width="306" Height="306">
+                            <Rectangle
+                                Width="3"
+                                Height="50"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
+                                Fill="Red" />
+                            <Rectangle
+                                Width="3"
+                                Height="50"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                Fill="Red" />
+                            <Rectangle
+                                Width="3"
+                                Height="50"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                Fill="Red" />
+                            <Rectangle
+                                Width="3"
+                                Height="50"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Bottom"
+                                Fill="Red" />
+                            <Rectangle
+                                Width="50"
+                                Height="3"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
+                                Fill="Red" />
+                            <Rectangle
+                                Width="50"
+                                Height="3"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                Fill="Red" />
+                            <Rectangle
+                                Width="50"
+                                Height="3"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                Fill="Red" />
+                            <Rectangle
+                                Width="50"
+                                Height="3"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Bottom"
+                                Fill="Red" />
+
+                            <Rectangle
+                                x:Name="recScanning"
+                                Height="2"
+                                Margin="12,0,12,16"
+                                VerticalAlignment="Bottom"
+                                RenderTransformOrigin="0.5,0.5">
+                                <Rectangle.RenderTransform>
+                                    <CompositeTransform />
+                                </Rectangle.RenderTransform>
+                                <Rectangle.Projection>
+                                    <PlaneProjection />
+                                </Rectangle.Projection>
+                                <Rectangle.Fill>
+                                    <LinearGradientBrush StartPoint="1,0.5" EndPoint="0,0.5">
+                                        <GradientStop Offset="0.15" Color="#331CF106" />
+                                        <GradientStop Offset="0.85" Color="#331CF106" />
+                                        <GradientStop Offset="0.5" Color="#FF1CF106" />
+                                    </LinearGradientBrush>
+                                </Rectangle.Fill>
+                            </Rectangle>
+                        </Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal">
+                                    <Storyboard AutoReverse="True" RepeatBehavior="Forever">
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="recScanning" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)">
+                                            <EasingDoubleKeyFrame KeyTime="0" Value="0" />
+                                            <EasingDoubleKeyFrame KeyTime="0:0:1.5" Value="-269.94" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

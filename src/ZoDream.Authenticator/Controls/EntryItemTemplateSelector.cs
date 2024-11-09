@@ -17,7 +17,7 @@ namespace ZoDream.Authenticator.Controls
 
         protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
-            if (item is EntryItemViewModel e)
+            if (item is EntryBaseViewModel e)
             {
                 return string.IsNullOrWhiteSpace(e.Icon) || e.Icon.Length == 1 ? IconTemplate : DefaultTemplate;
             }
