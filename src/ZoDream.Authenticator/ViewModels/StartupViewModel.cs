@@ -21,6 +21,10 @@ namespace ZoDream.Authenticator.ViewModels
             PickCommand = new RelayCommand(TapPick);
             CreateKeyCommand = new RelayCommand(TapCreateKey);
             _fileName = App.ViewModel.Setting.Get<string>(SettingNames.DatabaseFileName);
+            if (!File.Exists(_fileName))
+            {
+                _fileName = string.Empty;
+            }
             if (!string.IsNullOrWhiteSpace(_fileName))
             {
                 IsNextStep = true;

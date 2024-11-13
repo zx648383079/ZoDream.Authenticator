@@ -19,7 +19,7 @@ namespace ZoDream.Shared.Database
         {
             _builder = new FileBuilder(_options.FileName, Convert(_options), false);
             _header = new FileHeader();
-            _builder.Write(_header);
+            _builder.WriteHeader(_header);
         }
 
         public void Open()

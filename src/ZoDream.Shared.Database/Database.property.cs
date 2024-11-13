@@ -20,6 +20,8 @@ namespace ZoDream.Shared.Database
 * [2] entryCount
 * [4] entryDataOffset
 * 
+* [?] cipher iv
+* 
 * group
 * * [1] parentIndex
 * * [1] nameLength
@@ -36,6 +38,7 @@ namespace ZoDream.Shared.Database
 * * [titleLength] title
 * * [accountLength]? account
 * * * [dataLength] data
+* * * [1] dataType [?] data
 */
         private List<GroupRecord> _groupItems = [];
         private List<EntryRecord> _entryItems = [];
@@ -44,7 +47,7 @@ namespace ZoDream.Shared.Database
         /// </summary>
         private Dictionary<int, int> _groupMaps = [];
         private int _lastGroupId => _groupItems.Count > 0 ? _groupItems.Last().Id : (GroupRecord.BeginIndex - 1);
-        private int _lastEntryId => _entryItems.Last()?.Id ?? 0;
+        private int _lastEntryId => _entryItems.Count > 0 ? _entryItems.Last().Id : 0;
 
         private int[] GetGroupId(int id)
         {

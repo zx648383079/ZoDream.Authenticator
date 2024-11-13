@@ -1,9 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Security.Cryptography;
 
 namespace ZoDream.Shared.Database
 {
-    public class MixCipher(params ICipher[] items) : ICipher
+    public class MixCipher(params ICipher[] items) : ICipher, ICipherIV
     {
         public byte[] Decrypt(byte[] input)
         {
@@ -23,6 +24,36 @@ namespace ZoDream.Shared.Database
             return input;
         }
 
+        public void Write(Stream input)
+        {
+            foreach (var item in items)
+            {
+                if (item is ICipherIV c)
+                {
+                    c.Write(input);
+                }
+            }
+        }
+
+        public void Read(Stream input)
+        {
+            foreach (var item in items)
+            {
+                if (item is ICipherIV c)
+                {
+                    c.Read(input);
+                }
+            }
+        }
+
+        public void Seek(long position)
+        {
+            foreach (var item in items)
+            {
+                item.Seek(position);
+            }
+        }
+
         public byte[] Signature()
         {
             var buffer = new byte[16 * items.Length];
@@ -40,5 +71,7 @@ namespace ZoDream.Shared.Database
                 item.Dispose();
             }
         }
+
+ 
     }
 }

@@ -1,7 +1,4 @@
-﻿using OtpNet;
-using System;
-using System.Web;
-using ZoDream.Shared.Database;
+﻿using ZoDream.Shared.Database;
 
 namespace ZoDream.Authenticator.ViewModels.Models
 {

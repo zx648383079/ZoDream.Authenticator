@@ -1,7 +1,6 @@
 ﻿using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Windows.Input;
 using Windows.ApplicationModel.DataTransfer;
 using ZoDream.Authenticator.Dialogs;
@@ -24,6 +23,7 @@ namespace ZoDream.Authenticator.ViewModels
         }
 
         private readonly AppViewModel _app = App.ViewModel;
+        private int _groupId = 0;
 
         private ObservableCollection<EntryBaseViewModel> _entryItems = [];
 
@@ -57,6 +57,7 @@ namespace ZoDream.Authenticator.ViewModels
             }
             if (WirelessEntryViewModel.TryParse(dialog.Text, out var model))
             {
+                model.GroupId = _groupId;
                 _app.Database?.Insert(model);
                 EntryItems.Add(model);
                 IsUpdated = true;
@@ -64,6 +65,7 @@ namespace ZoDream.Authenticator.ViewModels
             }
             if (TOTPEntryViewModel.TryParse(dialog.Text, out var mo))
             {
+                mo.GroupId = _groupId;
                 _app.Database?.Insert(mo);
                 EntryItems.Add(mo);
                 IsUpdated = true;
@@ -115,6 +117,7 @@ namespace ZoDream.Authenticator.ViewModels
             }
             if (dialog.DataContext is IEntryForm form && form.TryParse(out var item))
             {
+                item.GroupId = _groupId;
                 _app.Database?.Insert(item);
                 EntryItems.Add(item);
                 IsUpdated = true;
@@ -152,14 +155,21 @@ namespace ZoDream.Authenticator.ViewModels
             });
         }
 
-        public void LoadAsync()
+        public void LoadAsync(object? arg)
         {
+            if (arg is int i)
+            {
+                _groupId = i;
+            } else if (arg is IGroupEntity e)
+            {
+                _groupId = e.Id;
+            }
             if (_app.Database is null)
             {
                 return;
             }
             EntryItems.Clear();
-            var items = _app.Database.Fetch(Create);
+            var items = _app.Database.Fetch(_groupId, Create);
             foreach (var item in items)
             {
                 EntryItems.Add(item);

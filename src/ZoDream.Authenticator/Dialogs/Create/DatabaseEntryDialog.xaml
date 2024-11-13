@@ -26,7 +26,7 @@
         <TextBox Header="Username" Text="{Binding Account, Mode=TwoWay}" />
         <PasswordBox Header="密码" Password="{Binding Password, Mode=TwoWay}" />
         <TextBox Header="SID" Text="{Binding Account, Mode=TwoWay}" />
-        <TextBox Header="alias" Text="{Binding Account, Mode=TwoWay}" />
+        <TextBox Header="Alias" Text="{Binding Account, Mode=TwoWay}" />
         <TextBox Header="Connection options" Text="{Binding Account, Mode=TwoWay}" />
 
     </StackPanel>

@@ -34,7 +34,7 @@ namespace ZoDream.Authenticator.Pages
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            ViewModel.LoadAsync();
+            ViewModel.LoadAsync(e.Parameter);
         }
     }
 }

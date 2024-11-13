@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ZoDream.Authenticator.ViewModels.Models;
 using ZoDream.Shared.ViewModel;
 
 namespace ZoDream.Authenticator.ViewModels
@@ -50,10 +51,12 @@ namespace ZoDream.Authenticator.ViewModels
                 entry = null;
                 return false;
             }
-            entry = new()
+            entry = new PasswordEntryViewModel()
             {
                 Title = Title,
                 Account = Account,
+                Password = Password,
+                Url = Url
             };
             return true;
         }

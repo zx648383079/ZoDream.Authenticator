@@ -20,6 +20,14 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
     </Style>
 
+    <Style x:Key="AvatarBox" TargetType="Border">
+        <Setter Property="Width" Value="40" />
+        <Setter Property="Height" Value="40" />
+        <Setter Property="CornerRadius" Value="20" />
+        <Setter Property="Background" Value="LightGray" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
     <DataTemplate x:Key="EntryItemTemplate">
         <Grid>
             <Grid.RowDefinitions>
@@ -32,8 +40,11 @@
                 <ColumnDefinition />
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
-            <CheckBox Grid.RowSpan="2" />
-            <Border Grid.RowSpan="2" Grid.Column="1">
+            <CheckBox Grid.RowSpan="2" Width="40" />
+            <Border
+                Grid.RowSpan="2"
+                Grid.Column="1"
+                Style="{StaticResource AvatarBox}">
                 <Image Source="{Binding Icon}" />
             </Border>
             <TextBlock Grid.Column="2" Text="{Binding Title}" />
@@ -67,8 +78,11 @@
                 <ColumnDefinition />
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
-            <CheckBox Grid.RowSpan="2" />
-            <Border Grid.RowSpan="2" Grid.Column="1">
+            <CheckBox Grid.RowSpan="2" MinWidth="40" />
+            <Border
+                Grid.RowSpan="2"
+                Grid.Column="1"
+                Style="{StaticResource AvatarBox}">
                 <FontIcon Glyph="{Binding Icon}" />
             </Border>
             <TextBlock Grid.Column="2" Text="{Binding Title}" />

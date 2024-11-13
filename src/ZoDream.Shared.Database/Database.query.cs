@@ -28,14 +28,17 @@ namespace ZoDream.Shared.Database
         {
             data.Id = _lastGroupId + 1;
             var pos = _header.GroupOffset;
-            var last = _groupItems.Last();
-            if (last is not null)
+            if (_groupItems.Count > 0)
             {
+                var last = _groupItems.Last();
                 pos += last.EntryOffset + last.EntryLength;
             }
             _builder.Seek(pos);
-            _groupItems.Add(_builder.Write(_header, data));
+            var item = _builder.Write(_header, data);
+            _groupItems.Add(item);
+            _header.EntryOffset += item.EntryLength;
             _header.GroupCount++;
+            _builder.Write(_header);
         }
 
         public void Update(IGroupEntity data)
@@ -58,6 +61,7 @@ namespace ZoDream.Shared.Database
             {
                 _groupItems[j].EntryOffset += offset;
             }
+            _builder.Write(_header);
         }
 
         public void Delete(IGroupEntity data)
@@ -75,6 +79,7 @@ namespace ZoDream.Shared.Database
             {
                 _groupItems[j].EntryOffset += offset;
             }
+            _builder.Write(_header);
         }
 
         public IEnumerable<T> Fetch<T>(Func<EntryType, T> createFn)
@@ -147,15 +152,16 @@ namespace ZoDream.Shared.Database
         public void Insert(object data)
         {
             TypeMapper.SetProperty(data, "Id", _lastEntryId + 1);
-            var pos = _header.EntryOffset;
-            var last = _entryItems.Last();
-            if (last is not null)
+            var pos = _header.EntryRealOffset;
+            if (_entryItems.Count > 0)
             {
+                var last = _entryItems.Last();
                 pos += last.EntryOffset + last.EntryLength;
             }
             _builder.Seek(pos);
             _entryItems.Add(_builder.Write(_header, data));
             _header.EntryCount++;
+            _builder.Write(_header);
         }
 
         public void Update(int id, object data)
@@ -165,7 +171,7 @@ namespace ZoDream.Shared.Database
             {
                 return;
             }
-            _builder.Seek(_header.EntryOffset + _entryItems[i].EntryOffset);
+            _builder.Seek(_header, _entryItems[i], false);
             var oldLength = _entryItems[i].EntryLength;
             _entryItems[i] = _builder.Write(_header, data, oldLength);
             var offset = _entryItems[i].EntryLength - oldLength;
@@ -187,12 +193,14 @@ namespace ZoDream.Shared.Database
                 return;
             }
             var offset = -_entryItems[i].EntryLength;
-            _builder.AddSpace(_header.EntryOffset + _entryItems[i].EntryOffset, offset);
+            _builder.AddSpace(_header.EntryRealOffset + _entryItems[i].EntryOffset, offset);
             _entryItems.RemoveAt(i);
+            _header.EntryCount--;
             for (var j = i; j < _entryItems.Count; j++)
             {
                 _entryItems[j].EntryOffset += offset;
             }
+            _builder.Write(_header);
         }
 
     }

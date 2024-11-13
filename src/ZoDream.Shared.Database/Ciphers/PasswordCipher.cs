@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ZoDream.Shared.Database
 {
@@ -15,11 +10,26 @@ namespace ZoDream.Shared.Database
         {
         }
 
+        private int _position;
+
+        public byte ReadByte()
+        {
+            if (iv.Length == 0)
+            {
+                return 0;
+            }
+            if (_position >= iv.Length)
+            {
+                _position %= iv.Length;
+            }
+            return iv[_position++];
+        }
+
         public byte[] Decrypt(byte[] input)
         {
             for (int i = 0; i < input.Length; i++)
             {
-                input[i] = (byte)(input[i] ^ iv[i % iv.Length]);
+                input[i] = (byte)(input[i] ^ ReadByte());
             }
             return input;
         }
@@ -30,9 +40,18 @@ namespace ZoDream.Shared.Database
         {
             for (int i = 0; i < input.Length; i++)
             {
-                input[i] = (byte)(input[i] ^ iv[i % iv.Length]);
+                input[i] = (byte)(input[i] ^ ReadByte());
             }
             return input;
+        }
+
+        public void Seek(long position)
+        {
+            if (iv.Length == 0)
+            {
+                return;
+            }
+            _position = (int)(position % iv.Length);
         }
 
         public byte[] Signature()

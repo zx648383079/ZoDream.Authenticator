@@ -127,7 +127,7 @@ namespace ZoDream.Shared.Database
                 EntryType.ToTp => ["Title", "Account", "Secret", "Url", "Algorithm", "Period", "Digits"],
                 EntryType.Authentication => ["Title", "Account", "Email", "Mobile", "Password", "Url"],
                 EntryType.Password => ["Title", "Account", "Password", "Url"],
-                EntryType.File => ["Title", "FileName"],
+                EntryType.File => ["Title", "Account", "FileName"],
                 EntryType.Note => ["Title", "Content"],
                 _ => ["Title", "Account", "Password", "Url"]
             };

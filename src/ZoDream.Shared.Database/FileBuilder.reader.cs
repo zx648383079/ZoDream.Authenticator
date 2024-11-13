@@ -23,11 +23,16 @@ namespace ZoDream.Shared.Database
 
         public FileHeader ReadHeader()
         {
+            var reader = Reader;
             var header = new FileHeader();
-            header.Read(Reader);
+            header.Read(reader);
             if (!header.ValidityCode.SequenceEqual(_cipher.Signature()))
             {
                 throw new CryptographicException("cipher is error");
+            }
+            if (_cipher is ICipherIV c)
+            {
+                c.Read(reader.BaseStream);
             }
             return header;
         }
@@ -57,13 +62,13 @@ namespace ZoDream.Shared.Database
         {
             var reader = Reader;
             var count = header.EntryCount;
-            var pos = header.EntryOffset;
+            var pos = header.EntryRealOffset;
             for (var i = 0; i < count; i++)
             {
                 reader.BaseStream.Seek(pos, SeekOrigin.Begin);
                 var entry = new EntryRecord()
                 {
-                    EntryOffset = pos - header.EntryOffset,
+                    EntryOffset = pos - header.EntryRealOffset,
                     Id = i,
                     Type = (EntryType)reader.ReadByte(),
                     GroupId = reader.ReadByte(),
@@ -74,15 +79,15 @@ namespace ZoDream.Shared.Database
                 {
                     m++;
                 }
-                entry.PropertiesLength = new int[n];
+                entry.PropertiesLength = new int[n + m];
                 entry.PropertiesLength[0] = reader.ReadByte(); // title
                 if (entry.HasAccount)
                 {
                     entry.PropertiesLength[1] = reader.ReadByte();
                 }
-                for (var j = 0; j < n; j++)
+                for (var j = m; j < n; j++)
                 {
-                    entry.PropertiesLength[j + m] = (int)BinaryPrimitives.ReadUInt32LittleEndian(reader.ReadBytes(entry.IsLargeLength ? 4 : 2));
+                    entry.PropertiesLength[j] = (int)BinaryPrimitives.ReadUInt32LittleEndian(reader.ReadBytes(entry.IsLargeLength ? 4 : 2));
                 }
                 pos += entry.EntryLength;
                 yield return entry;

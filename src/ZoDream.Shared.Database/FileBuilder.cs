@@ -39,16 +39,30 @@ namespace ZoDream.Shared.Database
         {
             BaseStream.Seek(pos, SeekOrigin.Begin);
         }
+
         /// <summary>
         /// 跳转到记录自定义属性开始的位置
         /// </summary>
         /// <param name="header"></param>
         /// <param name="record"></param>
-        public void Seek(FileHeader header, ITableRecord record)
+        public void Seek(FileHeader header, ITableRecord record, bool isData = true)
         {
-            Seek(record.EntryDataOffset + (record is GroupRecord ? header.GroupOffset : header.EntryOffset));
+            Seek(header.GetRecordOffset(record, isData));
+        }
+        /// <summary>
+        /// 跳转到 分组 还是 entry 数据的开始位置
+        /// </summary>
+        /// <param name="header"></param>
+        /// <param name="isEntry"></param>
+        public void Seek(FileHeader header, bool isEntry)
+        {
+            var offset = header.GroupOffset;
+            if (isEntry)
+            {
+                offset += header.EntryOffset;
+            }
+            Seek(offset);
         }
 
-        
     }
 }

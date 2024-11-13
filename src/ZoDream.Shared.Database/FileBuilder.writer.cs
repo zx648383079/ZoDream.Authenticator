@@ -10,6 +10,25 @@ namespace ZoDream.Shared.Database
 
         private BinaryWriter Writer => new(BaseStream);
 
+        /// <summary>
+        /// 初始化
+        /// </summary>
+        /// <param name="header"></param>
+        public void WriteHeader(FileHeader header)
+        {
+            var writer = Writer;
+            header.ValidityCode = _cipher.Signature();
+            header.EntryOffset = header.GroupOffset = 0;
+            header.EntryCount = header.GroupCount = 0;
+            header.Write(writer);
+            if (_cipher is ICipherIV c)
+            {
+                c.Write(writer.BaseStream);
+            }
+            header.GroupOffset = writer.BaseStream.Position;
+            header.Write(writer);
+        }
+
         public GroupRecord Write(FileHeader header, IGroupEntity entity, long lockedLength = 0)
         {
             var writer = Writer;
@@ -210,14 +229,18 @@ namespace ZoDream.Shared.Database
             }
             var end = stream.Length + length;
             var begin = stream.Position + length;
-            var buffer = new byte[Math.Min(end - begin, 1024 * 100)];
-            for (var i = end; i > begin; i -= buffer.Length)
+            var chunkLength = Math.Min(end - begin, 1024 * 100);
+            if (chunkLength > 0)
             {
-                var len = (int)Math.Min(i - begin, buffer.Length);
-                stream.Seek(i - len - length, SeekOrigin.Begin);
-                stream.Read(buffer, 0, len);
-                stream.Seek(i - len, SeekOrigin.Begin);
-                stream.Write(buffer, 0, len);
+                var buffer = new byte[chunkLength];
+                for (var i = end; i > begin; i -= buffer.Length)
+                {
+                    var len = (int)Math.Min(i - begin, buffer.Length);
+                    stream.Seek(i - len - length, SeekOrigin.Begin);
+                    stream.Read(buffer, 0, len);
+                    stream.Seek(i - len, SeekOrigin.Begin);
+                    stream.Write(buffer, 0, len);
+                }
             }
             stream.SetLength(end);
         }

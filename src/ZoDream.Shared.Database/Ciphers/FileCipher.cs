@@ -10,6 +10,8 @@ namespace ZoDream.Shared.Database
         {
             
         }
+
+
         public byte[] Decrypt(byte[] input)
         {
             for (int i = 0; i < input.Length; i++)
@@ -28,10 +30,19 @@ namespace ZoDream.Shared.Database
             return input;
         }
 
+        public void Seek(long position)
+        {
+            stream.Seek(position, SeekOrigin.Begin);
+        }
+
         public byte[] Signature()
         {
+            var pos = stream.Position;
+            stream.Seek(0, SeekOrigin.Begin);
             using var md5 = MD5.Create();
-            return md5.ComputeHash(stream);
+            var res = md5.ComputeHash(stream);
+            stream.Seek(pos, SeekOrigin.Begin);
+            return res;
         }
 
         public void Generate()

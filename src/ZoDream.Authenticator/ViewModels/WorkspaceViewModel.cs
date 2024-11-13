@@ -40,7 +40,7 @@ namespace ZoDream.Authenticator.ViewModels
         {
             if (tag.StartsWith("home_"))
             {
-                _app.Navigate<EntryPage>(tag[6..]);
+                _app.Navigate<EntryPage>(int.Parse(tag[5..]));
                 return;
             }
             switch (tag)
@@ -95,6 +95,7 @@ namespace ZoDream.Authenticator.ViewModels
             {
                 if (GroupItems.Count > item.ParentId)
                 {
+                    item.Tag = "home_" + item.Id;
                     GroupItems[item.ParentId].Children.Add(item);
                 }
             }
