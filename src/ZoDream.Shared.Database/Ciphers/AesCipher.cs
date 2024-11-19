@@ -18,7 +18,7 @@ namespace ZoDream.Shared.Database
             _isLoadedKey = true;
             using var fs = File.OpenRead(fileName);
             //fs.Read(aes.IV);
-            fs.Read(_aes.Key);
+            fs.ReadExactly(_aes.Key);
         }
 
         public byte[] Decrypt(byte[] input)
@@ -28,7 +28,20 @@ namespace ZoDream.Shared.Database
             return decryptor.TransformFinalBlock(input, 0, input.Length);
         }
 
-     
+        public Stream Decrypt(Stream input)
+        {
+            TryLoadKey();
+            var decryptor = _aes.CreateDecryptor();
+            return new CryptoStream(input, decryptor, CryptoStreamMode.Read);
+        }
+
+        public Stream Encrypt(Stream input)
+        {
+            TryLoadKey();
+            var encryptor = _aes.CreateEncryptor();
+            return new CryptoStream(input, encryptor, CryptoStreamMode.Read);
+        }
+
 
         public byte[] Encrypt(byte[] input)
         {
@@ -65,7 +78,7 @@ namespace ZoDream.Shared.Database
 
         public void Read(Stream input)
         {
-            input.Read(_aes.IV);
+            input.ReadExactly(_aes.IV);
         }
 
         public void Dispose()

@@ -1,4 +1,5 @@
-﻿using ZoDream.Shared.Database;
+﻿using System.Diagnostics.CodeAnalysis;
+using ZoDream.Shared.Database;
 
 namespace ZoDream.Authenticator.ViewModels.Models
 {
@@ -12,7 +13,7 @@ namespace ZoDream.Authenticator.ViewModels.Models
             
         }
 
-        public static bool TryParse(string text, out WirelessEntryViewModel model)
+        public static bool TryParse(string text, [NotNullWhen(true)] out WirelessEntryViewModel? model)
         {
             if (!text.StartsWith("WIFI:"))
             {

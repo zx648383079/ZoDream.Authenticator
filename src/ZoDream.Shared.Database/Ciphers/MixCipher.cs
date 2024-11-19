@@ -23,6 +23,24 @@ namespace ZoDream.Shared.Database
             }
             return input;
         }
+        public Stream Decrypt(Stream input)
+        {
+            foreach (var item in items)
+            {
+                input = item.Decrypt(input);
+            }
+            return input;
+        }
+
+        public Stream Encrypt(Stream input)
+        {
+            foreach (var item in items)
+            {
+                input = item.Encrypt(input);
+            }
+            return input;
+        }
+
 
         public void Write(Stream input)
         {

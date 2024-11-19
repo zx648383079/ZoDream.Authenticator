@@ -12,27 +12,35 @@ namespace ZoDream.Shared.Database.Ciphers
             using var fs = File.OpenRead(fileName);
             using var rsa = RSA.Create();
             var buffer = new byte[2];
-            fs.Read(buffer);
+            fs.ReadExactly(buffer);
             var length = BitConverter.ToUInt16(buffer);
             fs.Seek(length, SeekOrigin.Current);
             buffer = new byte[fs.Length - fs.Position];
-            fs.Read(buffer);
+            fs.ReadExactly(buffer);
             rsa.ImportRSAPrivateKey(buffer, out _);
             var maxBlockSize = rsa.KeySize / 8;
             return rsa.Decrypt(input, RSAEncryptionPadding.Pkcs1);
         }
 
+        public Stream Decrypt(Stream input)
+        {
 
+        }
+
+        public Stream Encrypt(Stream input)
+        {
+
+        }
 
         public byte[] Encrypt(byte[] input)
         {
             using var fs = File.OpenRead(fileName);
             using var rsa = RSA.Create();
             var buffer = new byte[2];
-            fs.Read(buffer);
+            fs.ReadExactly(buffer);
             var length = BitConverter.ToUInt16(buffer);
             buffer = new byte[length];
-            fs.Read(buffer);
+            fs.ReadExactly(buffer);
             rsa.ImportRSAPublicKey(buffer, out _);
             var maxBlockSize = rsa.KeySize / 8 - 11;
             

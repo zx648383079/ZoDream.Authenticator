@@ -1,5 +1,6 @@
 ﻿using OtpNet;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Web;
 using ZoDream.Shared.Database;
 
@@ -38,7 +39,7 @@ namespace ZoDream.Authenticator.ViewModels.Models
             
         }
 
-        public static bool TryParse(string url, out TOTPEntryViewModel model)
+        public static bool TryParse(string url, [NotNullWhen(true)] out TOTPEntryViewModel? model)
         {
             // otpauth://totp/zodream?secret=1&issuer=localhost&period=6&algorithm=sha1&digits=30
             if (!url.StartsWith("otpauth://") || !Uri.TryCreate(url, UriKind.Absolute, out var uri))

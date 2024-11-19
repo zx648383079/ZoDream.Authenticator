@@ -30,6 +30,16 @@ namespace ZoDream.Shared.Database
             return input;
         }
 
+        public Stream Decrypt(Stream input)
+        {
+            return new CryptoStream(input, this, CryptoStreamMode.Read);
+        }
+
+        public Stream Encrypt(Stream input)
+        {
+            return new CryptoStream(input, this, CryptoStreamMode.Read);
+        }
+
         public void Seek(long position)
         {
             stream.Seek(position, SeekOrigin.Begin);
@@ -66,5 +76,6 @@ namespace ZoDream.Shared.Database
         {
             stream.Dispose();
         }
+
     }
 }

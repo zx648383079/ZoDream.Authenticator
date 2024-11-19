@@ -32,7 +32,7 @@ namespace ZoDream.Shared.Database
         public GroupRecord Write(FileHeader header, IGroupEntity entity, long lockedLength = 0)
         {
             var writer = Writer;
-            var buffer = Encoding.UTF8.GetBytes(entity.Name);
+            var buffer = _cipher.Encrypt(Encoding.UTF8.GetBytes(entity.Name));
             var pos = writer.BaseStream.Position;
             var group = new GroupRecord
             {

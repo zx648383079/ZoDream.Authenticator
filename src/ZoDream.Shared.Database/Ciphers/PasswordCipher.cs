@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace ZoDream.Shared.Database
@@ -34,7 +35,15 @@ namespace ZoDream.Shared.Database
             return input;
         }
 
+        public Stream Decrypt(Stream input)
+        {
 
+        }
+
+        public Stream Encrypt(Stream input)
+        {
+
+        }
 
         public byte[] Encrypt(byte[] input)
         {
