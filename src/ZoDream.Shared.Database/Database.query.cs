@@ -6,10 +6,38 @@ namespace ZoDream.Shared.Database
 {
     public partial class Database
     {
+
+        private IEnumerable<GroupRecord> GroupItems => _builder!.Items.Where(i => i is GroupRecord).Select(i => (GroupRecord)i);
+        private IEnumerable<EntryRecord> EntryItems => _builder!.Items.Where(i => i is EntryRecord).Select(i => (EntryRecord)i);
+
+        private int[] GetGroupId(int id)
+        {
+            if (id < 1)
+            {
+                return [];
+            }
+            if (id >= GroupRecord.BeginIndex)
+            {
+                return [id];
+            }
+            var items = new List<int>
+            {
+                id
+            };
+            foreach (var item in GroupItems)
+            {
+                if (item.ParentId == id)
+                {
+                    items.Add(item.Id);
+                }
+            }
+            return [.. items];
+        }
+
         public IEnumerable<T> Fetch<T>()
             where T : IGroupEntity
         {
-            foreach (var item in _groupItems)
+            foreach (var item in GroupItems)
             {
                 var instance = Activator.CreateInstance<T>();
                 if (instance is null)
@@ -18,68 +46,24 @@ namespace ZoDream.Shared.Database
                 }
                 instance.Id = item.Id;
                 instance.ParentId = item.ParentId;
-                _builder?.Seek(_header, item);
-                instance.Name = _builder?.ReadString(item.NameLength)?? string.Empty;
+                _builder?.Read(item, (IGroupEntity)instance);
                 yield return instance;
             }
         }
 
         public void Insert(IGroupEntity data)
         {
-            data.Id = _lastGroupId + 1;
-            var pos = _header.GroupOffset;
-            if (_groupItems.Count > 0)
-            {
-                var last = _groupItems.Last();
-                pos += last.EntryOffset + last.EntryLength;
-            }
-            _builder.Seek(pos);
-            var item = _builder.Write(_header, data);
-            _groupItems.Add(item);
-            _header.EntryOffset += item.EntryLength;
-            _header.GroupCount++;
-            _builder.Write(_header);
+            _builder!.Save(data);
         }
 
         public void Update(IGroupEntity data)
         {
-            var i = _groupItems.FindIndex(item => item.Id == data.Id);
-            if (i < 0)
-            {
-                return;
-            }
-            _builder.Seek(_header.GroupOffset + _groupItems[i].EntryOffset);
-            var oldLength = _groupItems[i].EntryLength;
-            _groupItems[i] = _builder.Write(_header, data, oldLength);
-            var offset = _groupItems[i].EntryLength -  oldLength;
-            if (offset == 0)
-            {
-                return;
-            }
-            _header.EntryOffset += offset;
-            for (var j = i + 1; j < _groupItems.Count; j++)
-            {
-                _groupItems[j].EntryOffset += offset;
-            }
-            _builder.Write(_header);
+            _builder!.Save(data);
         }
 
         public void Delete(IGroupEntity data)
         {
-            var i = _groupItems.FindIndex(item => item.Id == data.Id);
-            if (i < 0)
-            {
-                return;
-            }
-            var offset = -_groupItems[i].EntryLength;
-            _builder.AddSpace(_header.GroupOffset + _groupItems[i].EntryOffset, offset);
-            _header.EntryOffset += offset;
-            _groupItems.RemoveAt(i);
-            for (var j = i; j < _groupItems.Count; j++)
-            {
-                _groupItems[j].EntryOffset += offset;
-            }
-            _builder.Write(_header);
+            _builder!.Delete(data, 0);
         }
 
         public IEnumerable<T> Fetch<T>(Func<EntryType, T> createFn)
@@ -95,7 +79,7 @@ namespace ZoDream.Shared.Database
           where T : IEntryEntity
         {
             var groups = GetGroupId(groupId);
-            foreach (var item in _entryItems)
+            foreach (var item in EntryItems)
             {
                 var instance = createFn.Invoke(item.Type);
                 if (instance is null)
@@ -108,99 +92,61 @@ namespace ZoDream.Shared.Database
                 }
                 instance.Id = item.Id;
                 instance.GroupId = item.GroupId;
-                _builder.Seek(_header, item);
-                instance.Title = _builder.ReadString(item.PropertiesLength[0]);
+                _builder!.Seek(item, true);
+                instance.Title = _builder.ReadString(item, item.PropertiesLength[0]);
                 if (!string.IsNullOrWhiteSpace(keywords) && !instance.Title.Contains(keywords))
                 {
                     continue;
                 }
                 if (item.HasAccount && instance is IAccountEntryEntity a)
                 {
-                    a.Account = _builder.ReadString(item.PropertiesLength[1]);
+                    a.Account = _builder.ReadString(item, item.PropertiesLength[1]);
                 }
                 yield return instance;
             }
         }
-        public T SingleEntry<T>(int id)
+        public T? SingleEntry<T>(int id)
+            where T : IEntryEntity
         {
-            var entry = _entryItems.Find(item => item.Id == id);
+            var entry = EntryItems.Where(item => item.Id == id).FirstOrDefault();
             if (entry == null)
             {
                 return default;
             }
             var instance = Activator.CreateInstance<T>();
-            _builder.ReadEntry(_header, entry, instance);
+            _builder!.Read(entry, (IEntryEntity)instance);
             return instance;
         }
         public string ScalarEntry(int id, string column)
         {
-            var entry = _entryItems.Find(item => item.Id == id);
+            var entry = EntryItems.Where(item => item.Id == id).FirstOrDefault();
             if (entry == null)
             {
                 return string.Empty;
             }
-            _builder.Seek(_header, entry);
+            _builder!.Seek(entry);
             var names = TypeMapper.EntryPropertyNames(entry.Type);
             var i = Array.IndexOf(names, column);
             if (i < 0)
             {
                 return string.Empty;
             }
-            return _builder.ReadString(entry.PropertiesLength[i]);
+            return _builder.ReadString(entry, entry.PropertiesLength[i]);
         }
 
-        public void Insert(object data)
+        public void Insert(IEntryEntity data)
         {
-            TypeMapper.SetProperty(data, "Id", _lastEntryId + 1);
-            var pos = _header.EntryRealOffset;
-            if (_entryItems.Count > 0)
-            {
-                var last = _entryItems.Last();
-                pos += last.EntryOffset + last.EntryLength;
-            }
-            _builder.Seek(pos);
-            _entryItems.Add(_builder.Write(_header, data));
-            _header.EntryCount++;
-            _builder.Write(_header);
+            _builder!.Save(data);
         }
 
-        public void Update(int id, object data)
+        public void Update(IEntryEntity data)
         {
-            var i = _entryItems.FindIndex(item => item.Id == id);
-            if (i < 0)
-            {
-                return;
-            }
-            _builder.Seek(_header, _entryItems[i], false);
-            var oldLength = _entryItems[i].EntryLength;
-            _entryItems[i] = _builder.Write(_header, data, oldLength);
-            var offset = _entryItems[i].EntryLength - oldLength;
-            if (offset == 0)
-            {
-                return;
-            }
-            for (var j = i + 1; j < _entryItems.Count; j++)
-            {
-                _entryItems[j].EntryOffset += offset;
-            }
+            _builder!.Save(data);
         }
 
-        public void Delete(int id)
+        public void Delete(IEntryEntity data)
         {
-            var i = _entryItems.FindIndex(item => item.Id == id);
-            if (i < 0)
-            {
-                return;
-            }
-            var offset = -_entryItems[i].EntryLength;
-            _builder.AddSpace(_header.EntryRealOffset + _entryItems[i].EntryOffset, offset);
-            _entryItems.RemoveAt(i);
-            _header.EntryCount--;
-            for (var j = i; j < _entryItems.Count; j++)
-            {
-                _entryItems[j].EntryOffset += offset;
-            }
-            _builder.Write(_header);
+            _builder!.Delete(data);
         }
 
     }

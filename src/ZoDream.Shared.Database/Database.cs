@@ -13,32 +13,23 @@ namespace ZoDream.Shared.Database
 
         private readonly IDatabaseOptions _options;
         private FileBuilder? _builder;
-        private FileHeader? _header;
 
         public void Create()
         {
             _builder = new FileBuilder(_options.FileName, Convert(_options), false);
-            _header = new FileHeader();
-            _builder.WriteHeader(_header);
         }
 
         public void Open()
         {
             _builder = new FileBuilder(_options.FileName, Convert(_options), true);
-            _header = _builder.ReadHeader();
-            foreach (var item in _builder.ReadGroup(_header))
-            {
-                _groupItems.Add(item);
-            }
-            foreach (var item in _builder.ReadEntry(_header))
-            {
-                _entryItems.Add(item);
-            }
         }
 
+        /// <summary>
+        /// 需要更新对应id
+        /// </summary>
         public void Flush()
         {
-
+            _builder!.Flush();
         }
 
         public void Dispose()

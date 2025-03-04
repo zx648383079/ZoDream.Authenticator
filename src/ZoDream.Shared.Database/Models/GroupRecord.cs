@@ -6,6 +6,8 @@
 
         public int Id { get; set; }
 
+        public RecordSourceType SourceType { get; set; } = RecordSourceType.Original;
+
         public int ParentId { get; set; }
 
         public int NameLength { get; set; }
@@ -16,4 +18,6 @@
 
         public long EntryLength => 2 + NameLength;
     }
+
+    
 }

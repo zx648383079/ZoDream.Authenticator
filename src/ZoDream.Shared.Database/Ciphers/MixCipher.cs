@@ -32,6 +32,26 @@ namespace ZoDream.Shared.Database
             return input;
         }
 
+        public int Decrypt(byte[] input, int index, int count)
+        {
+            foreach (var item in items)
+            {
+                count = item.Decrypt(input, index, count);
+                index = 0;
+            }
+            return count;
+        }
+
+        public int Encrypt(byte[] input, int index, int count)
+        {
+            foreach (var item in items)
+            {
+                count = item.Encrypt(input, index, count);
+                index = 0;
+            }
+            return count;
+        }
+
         public Stream Encrypt(Stream input)
         {
             foreach (var item in items)

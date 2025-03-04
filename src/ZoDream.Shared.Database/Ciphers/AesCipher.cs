@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Security.Cryptography;
+using CStream = System.Security.Cryptography.CryptoStream;
 
 namespace ZoDream.Shared.Database
 {
@@ -32,14 +34,32 @@ namespace ZoDream.Shared.Database
         {
             TryLoadKey();
             var decryptor = _aes.CreateDecryptor();
-            return new CryptoStream(input, decryptor, CryptoStreamMode.Read);
+            return new CStream(input, decryptor, CryptoStreamMode.Read);
+        }
+
+        public int Decrypt(byte[] input, int index, int count)
+        {
+            TryLoadKey();
+            var decryptor = _aes.CreateDecryptor();
+            var res = decryptor.TransformFinalBlock(input, index, count);
+            Array.Copy(res, input, res.Length);
+            return res.Length;
+        }
+
+        public int Encrypt(byte[] input, int index, int count)
+        {
+            TryLoadKey();
+            var decryptor = _aes.CreateEncryptor();
+            var res = decryptor.TransformFinalBlock(input, index, count);
+            Array.Copy(res, input, res.Length);
+            return res.Length;
         }
 
         public Stream Encrypt(Stream input)
         {
             TryLoadKey();
             var encryptor = _aes.CreateEncryptor();
-            return new CryptoStream(input, encryptor, CryptoStreamMode.Read);
+            return new CStream(input, encryptor, CryptoStreamMode.Read);
         }
 
 
@@ -86,6 +106,5 @@ namespace ZoDream.Shared.Database
             _aes.Dispose();
         }
 
-     
     }
 }

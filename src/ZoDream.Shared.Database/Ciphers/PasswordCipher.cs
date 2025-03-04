@@ -37,12 +37,30 @@ namespace ZoDream.Shared.Database
 
         public Stream Decrypt(Stream input)
         {
+            return new CryptoStream(input, this, 256, false);
+        }
 
+        public int Decrypt(byte[] input, int index, int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                input[i] = (byte)(input[i + index] ^ ReadByte());
+            }
+            return count;
+        }
+
+        public int Encrypt(byte[] input, int index, int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                input[i] = (byte)(input[i + index] ^ ReadByte());
+            }
+            return count;
         }
 
         public Stream Encrypt(Stream input)
         {
-
+            return new CryptoStream(input, this, 256, true);
         }
 
         public byte[] Encrypt(byte[] input)

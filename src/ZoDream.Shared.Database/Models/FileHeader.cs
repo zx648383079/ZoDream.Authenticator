@@ -29,19 +29,6 @@ namespace ZoDream.Shared.Database
         /// </summary>
         public long EntryRealOffset => GroupOffset + EntryOffset;
 
-        public long GetRecordOffset(ITableRecord record, bool isDataOffset = false)
-        {
-            var offset = GroupOffset;
-            if (record is EntryRecord)
-            {
-                offset += EntryOffset;
-            }
-            if (isDataOffset)
-            {
-                offset += record.EntryDataOffset;
-            }
-            return offset;
-        }
 
         public void Read(BinaryReader reader)
         {

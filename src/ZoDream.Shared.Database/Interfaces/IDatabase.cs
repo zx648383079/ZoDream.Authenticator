@@ -29,24 +29,23 @@ namespace ZoDream.Shared.Database
         /// <param name="data"></param>
         public void Delete(IGroupEntity data);
 
-        public T SingleEntry<T>(int id);
+        public T? SingleEntry<T>(int id) where T : IEntryEntity;
         public string ScalarEntry(int id, string column);
         /// <summary>
         /// 插入Entry
         /// </summary>
         /// <param name="data"></param>
-        public void Insert(object data);
+        public void Insert(IEntryEntity data);
         /// <summary>
         /// 更新Entry
         /// </summary>
         /// <param name="id"></param>
         /// <param name="data"></param>
-        public void Update(int id, object data);
+        public void Update(IEntryEntity data);
         /// <summary>
         /// 删除Entry
         /// </summary>
-        /// <param name="id"></param>
-        public void Delete(int id);
+        public void Delete(IEntryEntity data);
         public void Flush();
         public void Open();
         

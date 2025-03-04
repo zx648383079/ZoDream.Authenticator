@@ -8,7 +8,9 @@ namespace ZoDream.Shared.Database
 
         public void Seek(long position);
         public byte[] Decrypt(byte[] input);
+        public int Decrypt(byte[] input, int index, int count);
         public byte[] Encrypt(byte[] input);
+        public int Encrypt(byte[] input, int index, int count);
 
         public Stream Decrypt(Stream input);
         public Stream Encrypt(Stream input);

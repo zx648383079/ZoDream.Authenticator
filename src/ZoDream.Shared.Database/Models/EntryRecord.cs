@@ -6,6 +6,8 @@ namespace ZoDream.Shared.Database
     {
         public int Id { get; set; }
 
+        public RecordSourceType SourceType { get; set; } = RecordSourceType.Original;
+
         public EntryType Type { get; set; }
 
         public int GroupId { get; set; }
