@@ -8,6 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:ZoDream.Authenticator.ViewModels"
     Title="选择添加类型"
+    PrimaryButtonText="确定"
     SecondaryButtonText="取消"
     mc:Ignorable="d">
 

@@ -99,6 +99,7 @@ namespace ZoDream.Shared.Database
             {
                 Array.Copy(items[i].Signature(), 0, buffer, i * 16, 16);
             }
+            Seek(0);
             return MD5.HashData(Encrypt(buffer));
         }
 

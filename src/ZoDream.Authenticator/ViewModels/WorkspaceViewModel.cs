@@ -1,9 +1,10 @@
 ﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
+using Windows.ApplicationModel.DataTransfer;
 using ZoDream.Authenticator.Dialogs;
 using ZoDream.Authenticator.Pages;
-using ZoDream.Shared.Database;
 using ZoDream.Shared.ViewModel;
 
 namespace ZoDream.Authenticator.ViewModels
@@ -18,6 +19,7 @@ namespace ZoDream.Authenticator.ViewModels
         }
 
         private readonly AppViewModel _app = App.ViewModel;
+        private CancellationTokenSource _cancellation = new();
 
         private ObservableCollection<GroupItemViewModel> _groupItems = [];
 
@@ -31,6 +33,13 @@ namespace ZoDream.Authenticator.ViewModels
         public ObservableCollection<GroupItemViewModel> BottomItems {
             get => _bottomItems;
             set => Set(ref _bottomItems, value);
+        }
+
+        private int _progress;
+
+        public int Progress {
+            get => _progress;
+            set => Set(ref _progress, value);
         }
 
 
@@ -77,6 +86,31 @@ namespace ZoDream.Authenticator.ViewModels
         private void TapSetting()
         {
 
+        }
+
+        public void CopyText(string text, int timeout = 200)
+        {
+            _cancellation.Cancel();
+            _cancellation = new();
+            var package = new DataPackage();
+            package.SetText(text);
+            Clipboard.SetContentWithOptions(package, new()
+            {
+                IsAllowedInHistory = false,
+                IsRoamable = false,
+            });
+            Progress = 100;
+            var token = _cancellation.Token;
+            Task.Factory.StartNew(() => {
+                var val = timeout;
+                while (!token.IsCancellationRequested && val > 0)
+                {
+                    Thread.Sleep(1000);
+                    val -= 1;
+                    Progress = val * 100 / timeout;
+                }
+                Clipboard.Clear();
+            }, token);
         }
 
         private void LoadAsync()

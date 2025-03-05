@@ -41,6 +41,7 @@ namespace ZoDream.Shared.Database
                 return;
             }
             Seek(record, true);
+            _cipher.Seek(0);
             instance.Name = ReadString(record, record.NameLength);
         }
 
@@ -50,6 +51,7 @@ namespace ZoDream.Shared.Database
             TypeMapper.SetProperty(data, "Id", record.Id);
             TypeMapper.SetProperty(data, "GroupId", record.GroupId);
             Seek(record, true);
+            _cipher.Seek(0);
             var names = TypeMapper.EntryPropertyNames(record.Type);
             var begin = record.HasAccount ? 2 : 1;
             for (var i = 0; i < names.Length; i++)
@@ -77,6 +79,21 @@ namespace ZoDream.Shared.Database
             {
                 Writer.BaseStream.Seek(pos, SeekOrigin.Begin);
             }
+            _cipher.Seek(0);
+        }
+
+        public void Seek(EntryRecord record, int dataOffset)
+        {
+            var pos = record.EntryDataOffset + dataOffset;
+            if (record.SourceType == RecordSourceType.Original)
+            {
+                BaseStream.Seek(pos, SeekOrigin.Begin);
+            }
+            else
+            {
+                Writer.BaseStream.Seek(pos, SeekOrigin.Begin);
+            }
+            _cipher.Seek(dataOffset);
         }
 
         /// <summary>

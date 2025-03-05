@@ -17,6 +17,7 @@ namespace ZoDream.Shared.Database
         public void Create()
         {
             _builder = new FileBuilder(_options.FileName, Convert(_options), false);
+            _builder.Flush();
         }
 
         public void Open()

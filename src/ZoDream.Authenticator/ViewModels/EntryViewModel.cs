@@ -10,16 +10,22 @@ using ZoDream.Shared.ViewModel;
 
 namespace ZoDream.Authenticator.ViewModels
 {
-    public class EntryViewModel: BindableBase
+    public partial class EntryViewModel: BindableBase
     {
         public EntryViewModel()
         {
             AddCommand = new RelayCommand(TapAdd);
             ScanCommand = new RelayCommand(TapScan);
             SaveCommand = new RelayCommand(TapSave);
-            SearchCommand = new RelayCommand(TapSearch);
+            FindCommand = new RelayCommand(TapFind);
             EditCommand = new RelayCommand(TapEdit);
             ViewCommand = new RelayCommand(TapView);
+            DeleteCommand = new RelayCommand(TapDelete);
+            OpenUrlCommand = new RelayCommand(TapOpenUrl);
+            CopyAccountCommand = new RelayCommand(TapCopyAccount);
+            CopyPasswordCommand = new RelayCommand(TapCopyPassword);
+            CopyUrlCommand = new RelayCommand(TapCopyUrl);
+            CopyCodeCommand = new RelayCommand(TapCopyCode);
         }
 
         private readonly AppViewModel _app = App.ViewModel;
@@ -32,6 +38,7 @@ namespace ZoDream.Authenticator.ViewModels
             set => Set(ref _entryItems, value);
         }
 
+
         private bool _isUpdated;
 
         public bool IsUpdated {
@@ -42,10 +49,10 @@ namespace ZoDream.Authenticator.ViewModels
 
         public ICommand AddCommand { get; private set; }
         public ICommand ScanCommand { get; private set; }
-        public ICommand SearchCommand { get; private set; }
-        public ICommand EditCommand { get; private set; }
-        public ICommand ViewCommand { get; private set; }
+        public ICommand FindCommand { get; private set; }
+
         public ICommand SaveCommand { get; private set; }
+
 
         private async void TapScan(object? _)
         {
@@ -82,7 +89,7 @@ namespace ZoDream.Authenticator.ViewModels
             IsUpdated = false;
         }
 
-        private async void TapSearch(object? _)
+        private async void TapFind(object? _)
         {
             var dialog = new SearchDialog();
             var res = await _app.OpenFormAsync(dialog);
@@ -124,37 +131,6 @@ namespace ZoDream.Authenticator.ViewModels
             }
         }
 
-        private async void TapEdit(object? _)
-        {
-            var dialog = new EditDialog();
-            var model = dialog.ViewModel;
-            if (!await _app.OpenFormAsync(dialog))
-            {
-                return;
-            }
-        }
-
-        private async void TapView(object? _)
-        {
-            var dialog = new EntryDialog();
-            var model = dialog.ViewModel;
-            if (!await _app.OpenFormAsync(dialog))
-            {
-                return;
-            }
-        }
-
-        private void TapCopy(object? _)
-        {
-            var package = new DataPackage();
-            package.SetText("Copy this text");
-            Clipboard.SetContentWithOptions(package, new()
-            {
-                IsAllowedInHistory = false,
-                IsRoamable = false,
-            });
-        }
-
         public void LoadAsync(object? arg)
         {
             if (arg is int i)
@@ -172,6 +148,7 @@ namespace ZoDream.Authenticator.ViewModels
             var items = _app.Database.Fetch(_groupId, Create);
             foreach (var item in items)
             {
+                item.Workspace = this;
                 EntryItems.Add(item);
             }
         }

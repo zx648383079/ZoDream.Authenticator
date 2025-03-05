@@ -35,7 +35,7 @@
                 Icon="Scan"
                 Label="扫码2FA" />
             <AppBarButton
-                Command="{Binding SearchCommand}"
+                Command="{Binding FindCommand}"
                 Icon="Find"
                 Label="搜索" />
             <AppBarButton
@@ -45,14 +45,15 @@
                 Visibility="{Binding IsUpdated, Converter={StaticResource ToggleCvt}}" />
         </CommandBar>
 
-        <ListBox
+        <ListView
             Grid.Row="1"
             Background="Transparent"
             ItemTemplateSelector="{StaticResource EntryTemplateSelector}"
-            ItemsSource="{Binding EntryItems}">
+            ItemsSource="{Binding EntryItems}"
+            SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
             <ivy:Interaction.Behaviors>
                 <bhv:ListItemDoubleClickBehavior Command="{Binding EditCommand}" />
             </ivy:Interaction.Behaviors>
-        </ListBox>
+        </ListView>
     </Grid>
 </Page>

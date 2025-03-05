@@ -44,7 +44,7 @@
                 <ProgressBar
                     Grid.Column="1"
                     Width="120"
-                    Value="50" />
+                    Value="{Binding Progress}" />
             </Grid>
         </Grid>
     </NavigationView>

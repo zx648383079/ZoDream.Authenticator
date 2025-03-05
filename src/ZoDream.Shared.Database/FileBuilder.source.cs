@@ -2,10 +2,12 @@
 using System.Buffers;
 using System.Buffers.Binary;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using ZoDream.Shared.Database.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ZoDream.Shared.Database
 {
@@ -52,8 +54,7 @@ namespace ZoDream.Shared.Database
         private int _lastIndex = GroupRecord.BeginIndex;
 
         private BinaryWriter? _temporaryWriter;
-        public BinaryWriter Writer => _temporaryWriter ??= new BinaryWriter(File.Create(TemporaryPath));
-
+        public BinaryWriter Writer => _temporaryWriter ??= new BinaryWriter(File.Create(TemporaryPath, 1024, FileOptions.DeleteOnClose));
 
         private FileHeader LoadHeader(BinaryReader reader)
         {
@@ -135,16 +136,20 @@ namespace ZoDream.Shared.Database
         public int Save(IGroupEntity entity)
         {
             var writer = Writer;
+            if (entity.Name.Length > 20)
+            {
+                entity.Name = entity.Name[..20];
+            }
+            _cipher.Seek(0);
             var buffer = _cipher.Encrypt(Encoding.UTF8.GetBytes(entity.Name));
             if (entity.Id <= 0)
             {
                 entity.Id = _lastIndex++;
             }
-            writer.BaseStream.Seek(0, SeekOrigin.End);
             var group = new GroupRecord
             {
                 Id = entity.Id,
-                EntryOffset = writer.BaseStream.Position,
+                EntryOffset = PrepareWrite(writer, false),
                 ParentId = entity.ParentId,
                 NameLength = buffer.Length,
                 SourceType = RecordSourceType.Temporary,
@@ -152,14 +157,27 @@ namespace ZoDream.Shared.Database
             writer.Write((byte)group.ParentId);
             writer.Write((byte)buffer.Length);
             writer.Write(buffer);
+            writer.Flush();
             Add(group);
             return group.Id;
+        }
+
+        /// <summary>
+        /// 预写入
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="nextIsEntry">接下来写来的数据是否时 entry</param>
+        /// <returns>返回数据开始位置</returns>
+        private long PrepareWrite(BinaryWriter writer, bool nextIsEntry)
+        {
+            writer.BaseStream.Seek(0, SeekOrigin.End);
+            writer.Write((byte)(nextIsEntry ? 1 : 0));
+            return writer.BaseStream.Position;
         }
 
         public int Save(IEntryEntity entity)
         {
             var writer = Writer;
-            writer.BaseStream.Seek(0, SeekOrigin.End);
             if (entity.Id <= 0)
             {
                 entity.Id = _lastIndex++;
@@ -167,14 +185,16 @@ namespace ZoDream.Shared.Database
             var group = new EntryRecord
             {
                 Id = entity.Id,
-                EntryOffset = writer.BaseStream.Position,
+                EntryOffset = PrepareWrite(writer, true),
                 GroupId = entity.GroupId,
                 Type = TypeMapper.Convert(entity),
+                SourceType = RecordSourceType.Temporary,
             };
             var names = TypeMapper.EntryPropertyNames(group.Type);
             var hasAccount = TypeMapper.HasAccountProperty(group.Type);
             var begin = hasAccount ? 2 : 1;
             group.PropertiesLength = new int[names.Length];
+            _cipher.Seek(0);
             var data = new IStreamFormatter[names.Length];
             for (var i = 0; i < names.Length; i++)
             {
@@ -185,11 +205,11 @@ namespace ZoDream.Shared.Database
                 }
                 else if (names[i] == "FileName")
                 {
-                    data[i] = new FileFormatter(value);
+                    data[i] = new FileFormatter(value, _cipher);
                 }
                 else
                 {
-                    data[i] = new StringFormatter(value);
+                    data[i] = new StringFormatter(value, _cipher);
                 }
                 group.PropertiesLength[i] = data[i].Length;
             }
@@ -201,16 +221,14 @@ namespace ZoDream.Shared.Database
             {
                 writer.Write((byte)group.PropertiesLength[1]);
             }
-            if (group.IsLargeLength)
+            
+            for (var i = begin; i < group.PropertiesLength.Length; i++)
             {
-                for (var i = begin; i < group.PropertiesLength.Length; i++)
+                if (group.IsLargeLength)
                 {
                     writer.Write((uint)group.PropertiesLength[i]);
                 }
-            }
-            else
-            {
-                for (var i = begin; i < group.PropertiesLength.Length; i++)
+                else
                 {
                     writer.Write((ushort)group.PropertiesLength[i]);
                 }
@@ -220,6 +238,7 @@ namespace ZoDream.Shared.Database
                 item.CopyTo(writer.BaseStream);
                 item.Dispose();
             }
+            writer.Flush();
             Add(group);
             return entity.Id;
         }
@@ -246,9 +265,13 @@ namespace ZoDream.Shared.Database
                 }
             }
         }
-        public void Delete(IEntryEntity data)
+        public void Delete(IEntryEntity[] items)
         {
-            _items.Remove(data.Id);
+            foreach (var item in items)
+            {
+                _items.Remove(item.Id);
+            }
+            
         }
 
         private void Delete(int id)
@@ -286,6 +309,10 @@ namespace ZoDream.Shared.Database
             header.GroupCount = groups.Count;
             WriteHeader(writer, header);
             var index = GroupRecord.BeginIndex;
+            if (_items.Count == 0)
+            {
+                return;
+            }
             var buffer = ArrayPool<byte>.Shared.Rent(maxBuffer);
             try
             {
@@ -296,6 +323,7 @@ namespace ZoDream.Shared.Database
                     var parentId = maps.TryGetValue(item.ParentId, out var i) ? i : (item.ParentId > GroupRecord.BeginIndex ? 0 : item.ParentId);
                     maps.Add(item.Id, id);
                     var len = ReadRecord(buffer, item);
+                    Debug.Assert(len == item.EntryLength);
                     buffer[0] = (byte)parentId;
                     writer.BaseStream.Seek(pos, SeekOrigin.Begin);
                     writer.Write(buffer, 0, len);
@@ -310,6 +338,7 @@ namespace ZoDream.Shared.Database
                 {
                     var groupId = maps.TryGetValue(item.GroupId, out var i) ? i : (item.GroupId > GroupRecord.BeginIndex ? 0 : item.GroupId);
                     var len = ReadRecord(buffer, item);
+                    Debug.Assert(len == item.EntryLength);
                     buffer[1] = (byte)groupId;
                     writer.BaseStream.Seek(pos, SeekOrigin.Begin);
                     writer.Write(buffer, 0, len);
@@ -335,16 +364,26 @@ namespace ZoDream.Shared.Database
 
         private int ReadRecord(byte[] buffer, IRecordSource record, int offset, int count)
         {
+            var input = record.SourceType == RecordSourceType.Original ? BaseStream : Writer.BaseStream;
+            PrepareRead(input, record);
+            input.Seek(record.EntryOffset + offset, SeekOrigin.Begin);
+            return input.Read(buffer, 0, count);
+        }
+
+        /// <summary>
+        /// 验证读取的数据是否有误
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="record"></param>
+        private void PrepareRead(Stream input, IRecordSource record)
+        {
             if (record.SourceType == RecordSourceType.Original)
             {
-                BaseStream.Seek(record.EntryOffset + offset, SeekOrigin.Begin);
-                return BaseStream.Read(buffer, 0, count);
+                return;
             }
-            else
-            {
-                Writer.BaseStream.Seek(record.EntryOffset + offset, SeekOrigin.Begin);
-                return Writer.BaseStream.Read(buffer, 0, count);
-            }
+            input.Seek(record.EntryOffset - 1, SeekOrigin.Begin);
+            var type = input.ReadByte();
+            Debug.Assert(type <= 1 && (type > 0) == (record is EntryRecord));
         }
 
         private Stream AsStream(IRecordSource record)

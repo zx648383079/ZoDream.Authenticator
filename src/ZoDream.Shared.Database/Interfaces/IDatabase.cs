@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace ZoDream.Shared.Database
 {
@@ -45,7 +46,7 @@ namespace ZoDream.Shared.Database
         /// <summary>
         /// 删除Entry
         /// </summary>
-        public void Delete(IEntryEntity data);
+        public void Delete(params IEntryEntity[] items);
         public void Flush();
         public void Open();
         

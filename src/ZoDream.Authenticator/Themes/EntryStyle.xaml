@@ -2,8 +2,20 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:bhv="using:ZoDream.Authenticator.Behaviors"
     xmlns:ctl="using:ZoDream.Authenticator.Controls"
+    xmlns:ivy="using:Microsoft.Xaml.Interactivity"
     xmlns:vm="using:ZoDream.Authenticator.ViewModels">
+
+    <FontIconSource x:Key="DeleteIcon" Glyph="&#xE74D;" />
+    <FontIconSource x:Key="EditIcon" Glyph="&#xE70F;" />
+
+    <Style x:Key="DeleteBtn" TargetType="SwipeItem">
+        <Setter Property="Background" Value="Red" />
+        <Setter Property="Text" Value="删除" />
+        <Setter Property="IconSource" Value="{StaticResource DeleteIcon}" />
+    </Style>
+
 
     <DataTemplate x:Key="GroupItemTemplate">
         <NavigationViewItem
@@ -29,78 +41,291 @@
     </Style>
 
     <DataTemplate x:Key="EntryItemTemplate">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition />
-                <RowDefinition />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto" />
-                <ColumnDefinition Width="auto" />
-                <ColumnDefinition />
-                <ColumnDefinition Width="auto" />
-            </Grid.ColumnDefinitions>
-            <CheckBox Grid.RowSpan="2" Width="40" />
-            <Border
-                Grid.RowSpan="2"
-                Grid.Column="1"
-                Style="{StaticResource AvatarBox}">
-                <Image Source="{Binding Icon}" />
-            </Border>
-            <TextBlock Grid.Column="2" Text="{Binding Title}" />
-            <TextBlock
-                Grid.Row="1"
-                Grid.Column="2"
-                Text="{Binding Account}" />
-            <CommandBar Grid.RowSpan="2" Grid.Column="3">
-                <AppBarButton Icon="Edit" Label="编辑" />
-                <AppBarButton Icon="Delete" Label="删除" />
-                <CommandBar.SecondaryCommands>
-                    <AppBarButton Icon="Copy" Label="复制账号" />
-                    <AppBarButton Icon="Copy" Label="复制密码" />
-                    <AppBarButton Icon="Copy" Label="复制动态码" />
-                    <AppBarButton Icon="Copy" Label="复制网址" />
-                    <AppBarButton Icon="Globe" Label="打开网址" />
-                </CommandBar.SecondaryCommands>
-            </CommandBar>
-        </Grid>
+        <UserControl MinHeight="80">
+            <ivy:Interaction.Behaviors>
+                <bhv:PointerHoverBehavior />
+            </ivy:Interaction.Behaviors>
+            <UserControl.ContextFlyout>
+                <MenuFlyout>
+                    <MenuFlyoutItem
+                        Command="{Binding Workspace.EditCommand}"
+                        CommandParameter="{Binding}"
+                        Icon="Edit"
+                        Text="编辑" />
+                    <MenuFlyoutSubItem Icon="Copy" Text="复制">
+                        <MenuFlyoutItem
+                            Command="{Binding Workspace.CopyAccountCommand}"
+                            CommandParameter="{Binding}"
+                            Text="账号" />
+                        <MenuFlyoutItem
+                            Command="{Binding Workspace.CopyPasswordCommand}"
+                            CommandParameter="{Binding}"
+                            Text="密码" />
+                        <MenuFlyoutItem
+                            Command="{Binding Workspace.CopyCodeCommand}"
+                            CommandParameter="{Binding}"
+                            Text="动态码" />
+                        <MenuFlyoutItem
+                            Command="{Binding Workspace.CopyUrlCommand}"
+                            CommandParameter="{Binding}"
+                            Text="网址" />
+                    </MenuFlyoutSubItem>
+                    <MenuFlyoutItem
+                        Command="{Binding Workspace.OpenUrlCommand}"
+                        CommandParameter="{Binding}"
+                        Icon="Globe"
+                        Text="打开网址" />
+                    <MenuFlyoutItem
+                        Command="{Binding Workspace.DeleteCommand}"
+                        CommandParameter="{Binding}"
+                        Icon="Delete"
+                        Text="删除" />
+                </MenuFlyout>
+            </UserControl.ContextFlyout>
+            <Grid>
+                <SwipeControl>
+                    <SwipeControl.RightItems>
+                        <SwipeItems>
+                            <SwipeItem
+                                Command="{Binding Workspace.EditCommand}"
+                                CommandParameter="{Binding}"
+                                IconSource="{StaticResource EditIcon}"
+                                Text="编辑" />
+                            <SwipeItem
+                                Background="Red"
+                                Command="{Binding Workspace.DeleteCommand}"
+                                CommandParameter="{Binding}"
+                                IconSource="{StaticResource DeleteIcon}"
+                                Text="删除" />
+                        </SwipeItems>
+                    </SwipeControl.RightItems>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions>
+                        <CheckBox
+                            Grid.RowSpan="2"
+                            Width="40"
+                            IsChecked="{Binding IsChecked, Mode=TwoWay}" />
+                        <Border
+                            Grid.RowSpan="2"
+                            Grid.Column="1"
+                            Style="{StaticResource AvatarBox}">
+                            <Image Source="{Binding Icon}" />
+                        </Border>
+                        <TextBlock
+                            Grid.Column="2"
+                            VerticalAlignment="Center"
+                            Text="{Binding Title}" />
+                        <TextBlock
+                            Grid.Row="1"
+                            Grid.Column="2"
+                            Text="{Binding Account}" />
+                        <CommandBar
+                            x:Name="PART_ActionPanel"
+                            Grid.RowSpan="2"
+                            Grid.Column="3"
+                            VerticalAlignment="Center"
+                            Visibility="Collapsed">
+                            <AppBarButton
+                                Command="{Binding Workspace.EditCommand}"
+                                CommandParameter="{Binding}"
+                                Icon="Edit"
+                                Label="编辑" />
+                            <AppBarButton
+                                Command="{Binding Workspace.DeleteCommand}"
+                                CommandParameter="{Binding}"
+                                Icon="Delete"
+                                Label="删除" />
+                            <CommandBar.SecondaryCommands>
+                                <AppBarButton
+                                    Command="{Binding Workspace.CopyAccountCommand}"
+                                    CommandParameter="{Binding}"
+                                    Icon="Copy"
+                                    Label="复制账号" />
+                                <AppBarButton
+                                    Command="{Binding Workspace.CopyPasswordCommand}"
+                                    CommandParameter="{Binding}"
+                                    Icon="Copy"
+                                    Label="复制密码" />
+                                <AppBarButton
+                                    Command="{Binding Workspace.CopyCodeCommand}"
+                                    CommandParameter="{Binding}"
+                                    Icon="Copy"
+                                    Label="复制动态码" />
+                                <AppBarButton
+                                    Command="{Binding Workspace.CopyUrlCommand}"
+                                    CommandParameter="{Binding}"
+                                    Icon="Copy"
+                                    Label="复制网址" />
+                                <AppBarButton
+                                    Command="{Binding Workspace.OpenUrlCommand}"
+                                    CommandParameter="{Binding}"
+                                    Icon="Globe"
+                                    Label="打开网址" />
+                            </CommandBar.SecondaryCommands>
+                        </CommandBar>
+                    </Grid>
+                </SwipeControl>
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup x:Name="HoveringStates">
+                        <VisualState x:Name="HoverPanelHidden" />
+                        <VisualState x:Name="HoverPanelShown">
+                            <VisualState.Setters>
+                                <Setter Target="PART_ActionPanel.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
+            </Grid>
+        </UserControl>
     </DataTemplate>
 
     <DataTemplate x:Key="IconEntryItemTemplate">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition />
-                <RowDefinition />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto" />
-                <ColumnDefinition Width="auto" />
-                <ColumnDefinition />
-                <ColumnDefinition Width="auto" />
-            </Grid.ColumnDefinitions>
-            <CheckBox Grid.RowSpan="2" MinWidth="40" />
-            <Border
-                Grid.RowSpan="2"
-                Grid.Column="1"
-                Style="{StaticResource AvatarBox}">
-                <FontIcon Glyph="{Binding Icon}" />
-            </Border>
-            <TextBlock Grid.Column="2" Text="{Binding Title}" />
-            <TextBlock
-                Grid.Row="1"
-                Grid.Column="2"
-                Text="{Binding Account}" />
-            <CommandBar Grid.RowSpan="2" Grid.Column="3">
-                <AppBarButton Icon="Edit" Label="编辑" />
-                <AppBarButton Icon="Delete" Label="删除" />
-                <CommandBar.SecondaryCommands>
-                    <AppBarButton Icon="Copy" Label="复制账号" />
-                    <AppBarButton Icon="Copy" Label="复制密码" />
-                    <AppBarButton Icon="Copy" Label="复制网址" />
-                    <AppBarButton Icon="Globe" Label="打开网址" />
-                </CommandBar.SecondaryCommands>
-            </CommandBar>
-        </Grid>
+        <UserControl MinHeight="80">
+            <ivy:Interaction.Behaviors>
+                <bhv:PointerHoverBehavior />
+            </ivy:Interaction.Behaviors>
+            <UserControl.ContextFlyout>
+                <MenuFlyout>
+                    <MenuFlyoutItem
+                        Command="{Binding Workspace.EditCommand}"
+                        CommandParameter="{Binding}"
+                        Icon="Edit"
+                        Text="编辑" />
+                    <MenuFlyoutSubItem Icon="Copy" Text="复制">
+                        <MenuFlyoutItem
+                            Command="{Binding Workspace.CopyAccountCommand}"
+                            CommandParameter="{Binding}"
+                            Text="账号" />
+                        <MenuFlyoutItem
+                            Command="{Binding Workspace.CopyPasswordCommand}"
+                            CommandParameter="{Binding}"
+                            Text="密码" />
+                        <MenuFlyoutItem
+                            Command="{Binding Workspace.CopyUrlCommand}"
+                            CommandParameter="{Binding}"
+                            Text="网址" />
+                    </MenuFlyoutSubItem>
+                    <MenuFlyoutItem
+                        Command="{Binding Workspace.OpenUrlCommand}"
+                        CommandParameter="{Binding}"
+                        Icon="Globe"
+                        Text="打开网址" />
+                    <MenuFlyoutItem
+                        Command="{Binding Workspace.DeleteCommand}"
+                        CommandParameter="{Binding}"
+                        Icon="Delete"
+                        Text="删除" />
+                </MenuFlyout>
+            </UserControl.ContextFlyout>
+            <Grid>
+                <SwipeControl>
+                    <SwipeControl.RightItems>
+                        <SwipeItems>
+                            <SwipeItem
+                                Command="{Binding Workspace.EditCommand}"
+                                CommandParameter="{Binding}"
+                                IconSource="{StaticResource EditIcon}"
+                                Text="编辑" />
+                            <SwipeItem
+                                Background="Red"
+                                Command="{Binding Workspace.DeleteCommand}"
+                                CommandParameter="{Binding}"
+                                IconSource="{StaticResource DeleteIcon}"
+                                Text="删除" />
+                        </SwipeItems>
+                    </SwipeControl.RightItems>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions>
+                        <CheckBox
+                            Grid.RowSpan="2"
+                            MinWidth="40"
+                            IsChecked="{Binding IsChecked, Mode=TwoWay}" />
+                        <Border
+                            Grid.RowSpan="2"
+                            Grid.Column="1"
+                            Style="{StaticResource AvatarBox}">
+                            <FontIcon Glyph="{Binding Icon}" />
+                        </Border>
+                        <TextBlock
+                            Grid.Column="2"
+                            VerticalAlignment="Center"
+                            Text="{Binding Title}" />
+                        <TextBlock
+                            Grid.Row="1"
+                            Grid.Column="2"
+                            Text="{Binding Account}" />
+                        <CommandBar
+                            x:Name="PART_ActionPanel"
+                            Grid.RowSpan="2"
+                            Grid.Column="3"
+                            VerticalAlignment="Center"
+                            Visibility="Collapsed">
+                            <AppBarButton
+                                Command="{Binding Workspace.EditCommand}"
+                                CommandParameter="{Binding}"
+                                Icon="Edit"
+                                Label="编辑" />
+                            <AppBarButton
+                                Command="{Binding Workspace.DeleteCommand}"
+                                CommandParameter="{Binding}"
+                                Icon="Delete"
+                                Label="删除" />
+                            <CommandBar.SecondaryCommands>
+                                <AppBarButton
+                                    Command="{Binding Workspace.CopyAccountCommand}"
+                                    CommandParameter="{Binding}"
+                                    Icon="Copy"
+                                    Label="复制账号" />
+                                <AppBarButton
+                                    Command="{Binding Workspace.CopyPasswordCommand}"
+                                    CommandParameter="{Binding}"
+                                    Icon="Copy"
+                                    Label="复制密码" />
+                                <AppBarButton
+                                    Command="{Binding Workspace.CopyUrlCommand}"
+                                    CommandParameter="{Binding}"
+                                    Icon="Copy"
+                                    Label="复制网址" />
+                                <AppBarButton
+                                    Command="{Binding Workspace.OpenUrlCommand}"
+                                    CommandParameter="{Binding}"
+                                    Icon="Globe"
+                                    Label="打开网址" />
+                            </CommandBar.SecondaryCommands>
+                        </CommandBar>
+                    </Grid>
+                </SwipeControl>
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup x:Name="HoveringStates">
+                        <VisualState x:Name="HoverPanelHidden" />
+                        <VisualState x:Name="HoverPanelShown">
+                            <VisualState.Setters>
+                                <Setter Target="PART_ActionPanel.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
+            </Grid>
+        </UserControl>
+
     </DataTemplate>
 
     <ctl:EntryItemTemplateSelector

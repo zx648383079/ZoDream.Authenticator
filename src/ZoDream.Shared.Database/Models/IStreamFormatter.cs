@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ZoDream.Shared.Database.Models
 {
@@ -29,28 +26,58 @@ namespace ZoDream.Shared.Database.Models
         }
     }
 
-    internal class StringFormatter(string text) : ByteFormatter(Encoding.UTF8.GetBytes(text)), IStreamFormatter
+    internal class StringFormatter : ByteFormatter, IStreamFormatter
     {
-
+        public StringFormatter(string text)
+            : base(Encoding.UTF8.GetBytes(text))
+        {
+            
+        }
+        public StringFormatter(string text, ICipher cipher)
+            : base(cipher.Encrypt(Encoding.UTF8.GetBytes(text)))
+        {
+            
+        }
     }
 
-    internal class FileFormatter(Stream input) : IStreamFormatter
+    internal class FileFormatter : IStreamFormatter
     {
         public FileFormatter(string fileName)
             :this (File.OpenRead(fileName))
         {
             
         }
-        public int Length => (int)input.Length;
+        public FileFormatter(string fileName, ICipher cipher)
+            : this(File.OpenRead(fileName), cipher)
+        {
+            
+        }
+
+        public FileFormatter(Stream input, ICipher cipher)
+
+        {
+            BaseStream = new MemoryStream();
+            cipher.Encrypt(input).CopyTo(BaseStream);
+            input.Dispose();
+        }
+
+        public FileFormatter(Stream input)
+        {
+            BaseStream = input;
+        }
+
+        private readonly Stream BaseStream;
+
+        public int Length => (int)BaseStream.Length;
 
         public void CopyTo(Stream output)
         {
-            input.CopyTo(output);
+            BaseStream.CopyTo(output);
         }
 
         public void Dispose()
         {
-            input.Dispose();
+            BaseStream.Dispose();
         }
     }
 }

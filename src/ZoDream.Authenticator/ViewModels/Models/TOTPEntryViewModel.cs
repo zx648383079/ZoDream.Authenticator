@@ -18,25 +18,23 @@ namespace ZoDream.Authenticator.ViewModels.Models
 
         public int Digits { get; set; } = 30;
 
-        public string Code 
-        {
-            get 
-            {
-                var instance = new Totp(Base32Encoding.ToBytes(Secret), Digits, Algorithm.ToLower() switch
-                {
-                    "sha512" => OtpHashMode.Sha512,
-                    "sha256" => OtpHashMode.Sha256,
-                    _ => OtpHashMode.Sha1,
-                }, Period);
-                var now = DateTime.UtcNow;
-                //  instance.RemainingSeconds(now); // 动态码剩余多少秒
-                return instance.ComputeTotp(now);
-            }
-        }
-
         public TOTPEntryViewModel()
         {
             
+        }
+
+
+        public string TryGetCode(out int timeout) 
+        {
+            var instance = new Totp(Base32Encoding.ToBytes(Secret), Digits, Algorithm.ToLower() switch
+            {
+                "sha512" => OtpHashMode.Sha512,
+                "sha256" => OtpHashMode.Sha256,
+                _ => OtpHashMode.Sha1,
+            }, Period);
+            var now = DateTime.UtcNow;
+            timeout = instance.RemainingSeconds(now); // 动态码剩余多少秒
+            return instance.ComputeTotp(now);
         }
 
         public static bool TryParse(string url, [NotNullWhen(true)] out TOTPEntryViewModel? model)

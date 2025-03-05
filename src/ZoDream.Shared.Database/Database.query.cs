@@ -124,13 +124,18 @@ namespace ZoDream.Shared.Database
             {
                 return string.Empty;
             }
-            _builder!.Seek(entry);
             var names = TypeMapper.EntryPropertyNames(entry.Type);
             var i = Array.IndexOf(names, column);
             if (i < 0)
             {
                 return string.Empty;
             }
+            var offset = 0;
+            for (int j = 0; j < i; j++)
+            {
+                offset += entry.PropertiesLength[j];
+            }
+            _builder!.Seek(entry, offset);
             return _builder.ReadString(entry, entry.PropertiesLength[i]);
         }
 
@@ -144,9 +149,13 @@ namespace ZoDream.Shared.Database
             _builder!.Save(data);
         }
 
-        public void Delete(IEntryEntity data)
+        public void Delete(params IEntryEntity[] items)
         {
-            _builder!.Delete(data);
+            if (items.Length == 0)
+            {
+                return;
+            }
+            _builder!.Delete(items);
         }
 
     }

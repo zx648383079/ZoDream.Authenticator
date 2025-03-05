@@ -9,7 +9,7 @@
     <Color x:Key="BodyTextColor">#fff</Color>
     <Color x:Key="SecondaryTextColor">#767676</Color>
 
-    <Color x:Key="BorderColor">#7676676</Color>
+    <Color x:Key="BorderColor">#767676</Color>
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" />
 
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}" />

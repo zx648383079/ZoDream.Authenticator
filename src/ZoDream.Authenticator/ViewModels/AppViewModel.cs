@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.UI.Xaml.Controls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,8 +22,6 @@ namespace ZoDream.Authenticator.ViewModels
         public SettingContainer Setting { get; } = new();
         public IDatabase? Database { get; set; }
 
-       
-
         public async Task InitializeAsync()
         {
             await Setting.LoadAsync();
@@ -33,6 +32,13 @@ namespace ZoDream.Authenticator.ViewModels
             await Setting.SaveAsync();
             Database?.Dispose();
             Clipboard.Clear();
+        }
+
+        public void CopyText(string text, int timeout = 200)
+        {
+            var page = _rootFrame.Content;
+            var model = ((Page)page).DataContext as WorkspaceViewModel;
+            model?.CopyText(text, timeout);
         }
 
         public void Dispose()

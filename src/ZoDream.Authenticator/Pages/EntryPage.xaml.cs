@@ -36,5 +36,6 @@ namespace ZoDream.Authenticator.Pages
             base.OnNavigatedTo(e);
             ViewModel.LoadAsync(e.Parameter);
         }
+
     }
 }

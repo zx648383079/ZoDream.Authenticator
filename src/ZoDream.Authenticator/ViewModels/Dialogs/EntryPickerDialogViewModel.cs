@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ZoDream.Authenticator.Dialogs;
+﻿using ZoDream.Authenticator.Dialogs;
 using ZoDream.Shared.ViewModel;
 
 namespace ZoDream.Authenticator.ViewModels
 {
     public class EntryPickerDialogViewModel : BindableBase
     {
+        public EntryPickerDialogViewModel()
+        {
+            SelectedItem = OptionItems[0];
+        }
 
         public OptionItemViewModel[] OptionItems { get; private set; } = [
             new("登录", "\uF3B1", typeof(QuickDialog)),
