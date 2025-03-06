@@ -42,6 +42,12 @@ namespace ZoDream.Authenticator.ViewModels
             set => Set(ref _progress, value);
         }
 
+        private string _message = string.Empty;
+
+        public string Message {
+            get => _message;
+            set => Set(ref _message, value);
+        }
 
         public ICommand GroupCommand { get; private set; }
 
@@ -88,7 +94,7 @@ namespace ZoDream.Authenticator.ViewModels
 
         }
 
-        public void CopyText(string text, int timeout = 200)
+        public void CopyText(string text, int timeout = 60)
         {
             _cancellation.Cancel();
             _cancellation = new();
@@ -99,16 +105,26 @@ namespace ZoDream.Authenticator.ViewModels
                 IsAllowedInHistory = false,
                 IsRoamable = false,
             });
+            Message = $"已复制，有效期：{timeout}s";
             Progress = 100;
             var token = _cancellation.Token;
             Task.Factory.StartNew(() => {
                 var val = timeout;
-                while (!token.IsCancellationRequested && val > 0)
+                while (val > 0)
                 {
                     Thread.Sleep(1000);
+                    if (token.IsCancellationRequested)
+                    {
+                        return;
+                    }
                     val -= 1;
-                    Progress = val * 100 / timeout;
+                    _app.DispatcherQueue.TryEnqueue(() => {
+                        Progress = val * 100 / timeout;
+                    });
                 }
+                _app.DispatcherQueue.TryEnqueue(() => {
+                    Message = string.Empty;
+                });
                 Clipboard.Clear();
             }, token);
         }

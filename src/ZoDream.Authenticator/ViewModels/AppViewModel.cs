@@ -22,6 +22,8 @@ namespace ZoDream.Authenticator.ViewModels
         public SettingContainer Setting { get; } = new();
         public IDatabase? Database { get; set; }
 
+        private WorkspaceViewModel? Workspace => (_rootFrame.Content as Page)?.DataContext as WorkspaceViewModel;
+
         public async Task InitializeAsync()
         {
             await Setting.LoadAsync();
@@ -34,11 +36,9 @@ namespace ZoDream.Authenticator.ViewModels
             Clipboard.Clear();
         }
 
-        public void CopyText(string text, int timeout = 200)
+        public void CopyText(string text, int timeout = 30)
         {
-            var page = _rootFrame.Content;
-            var model = ((Page)page).DataContext as WorkspaceViewModel;
-            model?.CopyText(text, timeout);
+            Workspace?.CopyText(text, timeout);
         }
 
         public void Dispose()

@@ -109,7 +109,7 @@ namespace ZoDream.Shared.Database
             var buffer = ArrayPool<byte>.Shared.Rent(length);
             try
             {
-                var len = 0;
+                var len = length;
                 if (record.SourceType == RecordSourceType.Original)
                 {
                     BaseStream.ReadExactly(buffer, 0, length);

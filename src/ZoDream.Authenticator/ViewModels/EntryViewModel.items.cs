@@ -1,14 +1,9 @@
-﻿using Microsoft.UI.Xaml.Controls;
-using System;
-using System.Collections.ObjectModel;
+﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using Windows.ApplicationModel.DataTransfer;
 using ZoDream.Authenticator.Dialogs;
 using ZoDream.Authenticator.ViewModels.Models;
 using ZoDream.Shared.Database;
-using ZoDream.Shared.ViewModel;
 
 namespace ZoDream.Authenticator.ViewModels
 {
@@ -81,7 +76,17 @@ namespace ZoDream.Authenticator.ViewModels
             {
                 return;
             }
-            await Windows.System.Launcher.LaunchUriAsync(new Uri(text));
+            if (!text.Contains("://"))
+            {
+                text = "https://" + text;
+            }
+            if (Uri.TryCreate(text, UriKind.Absolute, out var uri))
+            {
+                await Windows.System.Launcher.LaunchUriAsync(uri);
+                return;
+            }
+            _app.CopyText(text, 200);
+            await _app.ConfirmAsync("网址不完整，已复制到剪切板，请手动粘贴到浏览器地址栏打开！");
         }
 
         private void TapCopyAccount(object? arg)

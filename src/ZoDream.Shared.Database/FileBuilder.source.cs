@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Buffers;
-using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using ZoDream.Shared.Database.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ZoDream.Shared.Database
 {
@@ -124,9 +122,9 @@ namespace ZoDream.Shared.Database
                 {
                     entry.PropertiesLength[1] = reader.ReadByte();
                 }
-                for (var j = m; j < n; j++)
+                for (var j = 0; j < n; j++)
                 {
-                    entry.PropertiesLength[j] = (int)BinaryPrimitives.ReadUInt32LittleEndian(reader.ReadBytes(entry.IsLargeLength ? 4 : 2));
+                    entry.PropertiesLength[m + j] = entry.IsLargeLength ? (int)reader.ReadUInt32() : (int)reader.ReadUInt16();
                 }
                 pos = entry.EntryOffset + entry.EntryLength;
                 _items.Add(entry.Id, entry);

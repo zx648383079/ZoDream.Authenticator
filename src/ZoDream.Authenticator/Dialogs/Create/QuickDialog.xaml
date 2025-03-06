@@ -20,7 +20,10 @@
 
     <StackPanel>
         <TextBox Header="名称" Text="{Binding Title, Mode=TwoWay}" />
-        <TextBox Header="账号" Text="{Binding Account, Mode=TwoWay}" />
+        <TextBox
+            Header="账号"
+            IsSpellCheckEnabled="False"
+            Text="{Binding Account, Mode=TwoWay}" />
         <TextBlock Margin="{StaticResource PasswordBoxTopHeaderMargin}" Text="密码" />
         <Grid>
             <Grid.ColumnDefinitions>
@@ -100,6 +103,9 @@
                 </Button.Flyout>
             </Button>
         </Grid>
-        <TextBox Header="网址" Text="{Binding Url, Mode=TwoWay}" />
+        <TextBox
+            Header="网址"
+            IsSpellCheckEnabled="False"
+            Text="{Binding Url, Mode=TwoWay}" />
     </StackPanel>
 </ContentDialog>

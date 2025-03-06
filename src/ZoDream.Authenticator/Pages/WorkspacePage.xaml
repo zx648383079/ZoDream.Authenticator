@@ -40,7 +40,7 @@
                     <ColumnDefinition />
                     <ColumnDefinition Width="auto" />
                 </Grid.ColumnDefinitions>
-                <TextBlock />
+                <TextBlock VerticalAlignment="Center" Text="{Binding Message}" />
                 <ProgressBar
                     Grid.Column="1"
                     Width="120"
