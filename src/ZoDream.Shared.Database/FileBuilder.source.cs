@@ -309,6 +309,8 @@ namespace ZoDream.Shared.Database
             var index = GroupRecord.BeginIndex;
             if (_items.Count == 0)
             {
+                output.SetLength(output.Position);
+                output.Flush();
                 return;
             }
             var buffer = ArrayPool<byte>.Shared.Rent(maxBuffer);
@@ -352,7 +354,8 @@ namespace ZoDream.Shared.Database
             {
                 ArrayPool<byte>.Shared.Return(buffer);
             }
-
+            output.SetLength(output.Position);
+            output.Flush();
         }
 
         private int ReadRecord(byte[] buffer, IRecordSource record)
