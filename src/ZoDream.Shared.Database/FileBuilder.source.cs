@@ -382,7 +382,7 @@ namespace ZoDream.Shared.Database
                 return;
             }
             input.Seek(record.EntryOffset - 1, SeekOrigin.Begin);
-            var type = input.ReadByte();
+            var type = ReadByte(input);
             Debug.Assert(type <= 1 && (type > 0) == (record is EntryRecord));
         }
 
