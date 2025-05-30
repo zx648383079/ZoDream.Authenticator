@@ -4,5 +4,6 @@
     {
         Unknown,
         V1 = 1,
+        WithRecovery = 2, // 带恢复码
     }
 }

@@ -6,6 +6,7 @@ namespace ZoDream.Shared.Database
     public interface ICipher: IDisposable
     {
 
+        public byte RandomKey { get; }
         public void Seek(long position);
         public byte[] Decrypt(byte[] input);
         public int Decrypt(byte[] input, int index, int count);

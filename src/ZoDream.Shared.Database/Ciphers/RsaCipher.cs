@@ -11,6 +11,8 @@ namespace ZoDream.Shared.Database.Ciphers
         private RSA? _encrytor;
         private RSA? _decrytor;
 
+        public byte RandomKey => 0;
+
         public int DecryptBlockSize => _decrytor is null ? 1024 : (_decrytor.KeySize / 8);
         public int EncryptBlockSize => _encrytor is null ? 1024 : (_encrytor.KeySize / 8 - 11);
 

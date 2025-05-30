@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -7,9 +10,14 @@ namespace ZoDream.Shared.Database
     public class PasswordCipher(byte[] iv) : ICipher
     {
         public PasswordCipher(string key)
-            : this(Encoding.UTF8.GetBytes(key))
+            : this(Hash(key))
         {
         }
+
+        /// <summary>
+        /// 用来加密长度
+        /// </summary>
+        public byte RandomKey => iv[(iv[0] ^ iv.Last()) % iv.Length];
 
         private int _position;
 
@@ -88,6 +96,35 @@ namespace ZoDream.Shared.Database
 
         public void Dispose()
         {
+        }
+
+        /// <summary>
+        /// 生成不可逆的加密密码
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        private static byte[] Hash(string key)
+        {
+            var data = Encoding.UTF8.GetBytes(key);
+            Debug.Assert(data.Length > 3);
+            var length = data[0] + data[1];
+            if (length < 20)
+            {
+                length = 30;
+            } 
+            else if (length > 128)
+            {
+                length = Math.Max(length % 128, 44);
+            }
+            var sha1 = SHA1.HashData(data);
+            var buffer = new byte[length];
+            for (int i = 0; i < length; i++)
+            {
+                var j = data[i % data.Length];
+                var val = sha1[j % sha1.Length];
+                buffer[i] = val == 0 ? (byte)i : val;
+            }
+            return buffer;
         }
     }
 }

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 
 namespace ZoDream.Shared.Database
 {
     public class MixCipher(params ICipher[] items) : ICipher, ICipherIV
     {
+        public byte RandomKey => items.Select(i => i.RandomKey).Max();
         public byte[] Decrypt(byte[] input)
         {
             foreach (var item in items)

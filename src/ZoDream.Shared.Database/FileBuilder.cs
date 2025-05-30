@@ -13,6 +13,7 @@ namespace ZoDream.Shared.Database
         {
             _fileName = fileName;
             _cipher = cipher;
+            _ivKey = _cipher.RandomKey;
             BaseStream = File.Open(_fileName, FileMode.OpenOrCreate);
             Load(BaseStream);
         }
@@ -21,6 +22,7 @@ namespace ZoDream.Shared.Database
         {
             _fileName = fileName;
             _cipher = cipher;
+            _ivKey = _cipher.RandomKey;
             BaseStream = File.Open(_fileName, isOpen ? FileMode.Open : FileMode.Create);
             if (isOpen)
             {
@@ -29,6 +31,7 @@ namespace ZoDream.Shared.Database
         }
 
         private readonly string _fileName;
+        private readonly byte _ivKey;
         private readonly ICipher _cipher;
         public Stream BaseStream { get; private set; }
 
@@ -47,7 +50,6 @@ namespace ZoDream.Shared.Database
 
         public void Read(EntryRecord record, IEntryEntity data)
         {
-            
             TypeMapper.SetProperty(data, "Id", record.Id);
             TypeMapper.SetProperty(data, "GroupId", record.GroupId);
             Seek(record, true);
@@ -77,7 +79,7 @@ namespace ZoDream.Shared.Database
             }
             else
             {
-                Writer.BaseStream.Seek(pos, SeekOrigin.Begin);
+                OutputStream.Seek(pos, SeekOrigin.Begin);
             }
             _cipher.Seek(0);
         }
@@ -91,7 +93,7 @@ namespace ZoDream.Shared.Database
             }
             else
             {
-                Writer.BaseStream.Seek(pos, SeekOrigin.Begin);
+                OutputStream.Seek(pos, SeekOrigin.Begin);
             }
             _cipher.Seek(dataOffset);
         }
@@ -116,7 +118,7 @@ namespace ZoDream.Shared.Database
                 }
                 else
                 {
-                    Writer.BaseStream.ReadExactly(buffer, 0, length);
+                    OutputStream.ReadExactly(buffer, 0, length);
                 }
                 len = _cipher.Decrypt(buffer, 0, len);
                 return Encoding.UTF8.GetString(buffer, 0, len);
@@ -135,7 +137,7 @@ namespace ZoDream.Shared.Database
         {
             _cipher.Dispose();
             BaseStream.Dispose();
-            _temporaryWriter?.Dispose();
+            _temporaryStream?.Dispose();
         }
     }
 }

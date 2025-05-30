@@ -7,6 +7,7 @@ namespace ZoDream.Shared.Database
 {
     public class AesCipher(string fileName) : ICipher, ICipherFile, ICipherIV
     {
+        public byte RandomKey => 0;
 
         private readonly Aes _aes = Aes.Create();
         private bool _isLoadedKey = false;

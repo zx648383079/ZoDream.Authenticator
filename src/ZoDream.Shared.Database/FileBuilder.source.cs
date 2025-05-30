@@ -22,6 +22,7 @@ namespace ZoDream.Shared.Database
 * [2] entryCount
 * [4] entryDataOffset
 * 
+* [?] recoveryCode
 * [?] cipher iv
 * 
 * group
@@ -51,20 +52,20 @@ namespace ZoDream.Shared.Database
 
         private int _lastIndex = GroupRecord.BeginIndex;
 
-        private BinaryWriter? _temporaryWriter;
-        public BinaryWriter Writer => _temporaryWriter ??= new BinaryWriter(File.Create(TemporaryPath, 1024, FileOptions.DeleteOnClose));
+        private Stream? _temporaryStream;
+        public Stream OutputStream => _temporaryStream ??= File.Create(TemporaryPath, 1024, FileOptions.DeleteOnClose);
 
-        private FileHeader LoadHeader(BinaryReader reader)
+        private FileHeader LoadHeader(Stream input)
         {
             var header = new FileHeader();
-            header.Read(reader);
+            ReadHeader(input, header);
             if (!header.ValidityCode.SequenceEqual(_cipher.Signature()))
             {
                 throw new CryptographicException("cipher is error");
             }
             if (_cipher is ICipherIV c)
             {
-                c.Read(reader.BaseStream);
+                c.Read(input);
             }
             return header;
         }
@@ -72,59 +73,58 @@ namespace ZoDream.Shared.Database
         private void Load(Stream input)
         {
             _items.Clear();
-            var reader = new BinaryReader(input);
-            var header = LoadHeader(reader);
-            LoadGroup(reader, header);
-            LoadEntry(reader, header);
+            var header = LoadHeader(input);
+            LoadGroup(input, header);
+            LoadEntry(input, header);
         }
 
-        private void LoadGroup(BinaryReader reader, FileHeader header)
+        private void LoadGroup(Stream input, FileHeader header)
         {
             var pos = header.GroupOffset;
             for (var i = 0; i < header.GroupCount; i++)
             {
-                reader.BaseStream.Seek(pos, SeekOrigin.Begin);
+                input.Seek(pos, SeekOrigin.Begin);
                 var item = new GroupRecord()
                 {
                     Id = _lastIndex++,
                     SourceType = RecordSourceType.Original,
                     EntryOffset = pos,
-                    ParentId = reader.ReadByte(),
-                    NameLength = reader.ReadByte()
+                    ParentId = ReadByte(input),
+                    NameLength = ReadByte(input)
                 };
                 _items.Add(item.Id, item);
                 pos = item.EntryOffset + item.EntryLength;
             }
         }
-        private void LoadEntry(BinaryReader reader, FileHeader header)
+        private void LoadEntry(Stream input, FileHeader header)
         {
             var pos = header.EntryRealOffset;
             for (var i = 0; i < header.EntryCount; i++)
             {
-                reader.BaseStream.Seek(pos, SeekOrigin.Begin);
+                input.Seek(pos, SeekOrigin.Begin);
                 var entry = new EntryRecord()
                 {
                     Id = _lastIndex++,
                     EntryOffset = pos,
                     SourceType = RecordSourceType.Original,
-                    Type = (EntryType)reader.ReadByte(),
-                    GroupId = reader.ReadByte(),
+                    Type = (EntryType)ReadByte(input),
+                    GroupId = ReadByte(input),
                 };
-                var n = reader.ReadByte();
+                var n = ReadByte(input);
                 var m = 1;
                 if (entry.HasAccount)
                 {
                     m++;
                 }
                 entry.PropertiesLength = new int[n + m];
-                entry.PropertiesLength[0] = reader.ReadByte(); // title
+                entry.PropertiesLength[0] = ReadByte(input); // title
                 if (entry.HasAccount)
                 {
-                    entry.PropertiesLength[1] = reader.ReadByte();
+                    entry.PropertiesLength[1] = ReadByte(input);
                 }
                 for (var j = 0; j < n; j++)
                 {
-                    entry.PropertiesLength[m + j] = entry.IsLargeLength ? (int)reader.ReadUInt32() : (int)reader.ReadUInt16();
+                    entry.PropertiesLength[m + j] = entry.IsLargeLength ? (int)ReadUInt32(input) : (int)ReadUInt16(input);
                 }
                 pos = entry.EntryOffset + entry.EntryLength;
                 _items.Add(entry.Id, entry);
@@ -133,7 +133,7 @@ namespace ZoDream.Shared.Database
 
         public int Save(IGroupEntity entity)
         {
-            var writer = Writer;
+            var output = OutputStream;
             if (entity.Name.Length > 20)
             {
                 entity.Name = entity.Name[..20];
@@ -147,15 +147,15 @@ namespace ZoDream.Shared.Database
             var group = new GroupRecord
             {
                 Id = entity.Id,
-                EntryOffset = PrepareWrite(writer, false),
+                EntryOffset = PrepareWrite(output, false),
                 ParentId = entity.ParentId,
                 NameLength = buffer.Length,
                 SourceType = RecordSourceType.Temporary,
             };
-            writer.Write((byte)group.ParentId);
-            writer.Write((byte)buffer.Length);
-            writer.Write(buffer);
-            writer.Flush();
+            Write(output, (byte)group.ParentId);
+            Write(output, (byte)buffer.Length);
+            output.Write(buffer);
+            output.Flush();
             Add(group);
             return group.Id;
         }
@@ -166,16 +166,16 @@ namespace ZoDream.Shared.Database
         /// <param name="writer"></param>
         /// <param name="nextIsEntry">接下来写来的数据是否时 entry</param>
         /// <returns>返回数据开始位置</returns>
-        private long PrepareWrite(BinaryWriter writer, bool nextIsEntry)
+        private long PrepareWrite(Stream output, bool nextIsEntry)
         {
-            writer.BaseStream.Seek(0, SeekOrigin.End);
-            writer.Write((byte)(nextIsEntry ? 1 : 0));
-            return writer.BaseStream.Position;
+            output.Seek(0, SeekOrigin.End);
+            Write(output, (byte)(nextIsEntry ? 1 : 0));
+            return output.Position;
         }
 
         public int Save(IEntryEntity entity)
         {
-            var writer = Writer;
+            var output = OutputStream;
             if (entity.Id <= 0)
             {
                 entity.Id = _lastIndex++;
@@ -183,7 +183,7 @@ namespace ZoDream.Shared.Database
             var group = new EntryRecord
             {
                 Id = entity.Id,
-                EntryOffset = PrepareWrite(writer, true),
+                EntryOffset = PrepareWrite(output, true),
                 GroupId = entity.GroupId,
                 Type = TypeMapper.Convert(entity),
                 SourceType = RecordSourceType.Temporary,
@@ -211,32 +211,32 @@ namespace ZoDream.Shared.Database
                 }
                 group.PropertiesLength[i] = data[i].Length;
             }
-            writer.Write((byte)group.Type);
-            writer.Write((byte)group.GroupId);
-            writer.Write((byte)(names.Length - begin));
-            writer.Write((byte)group.PropertiesLength[0]);
+            Write(output, (byte)group.Type);
+            Write(output, (byte)group.GroupId);
+            Write(output, (byte)(names.Length - begin));
+            Write(output, (byte)group.PropertiesLength[0]);
             if (hasAccount)
             {
-                writer.Write((byte)group.PropertiesLength[1]);
+                Write(output, (byte)group.PropertiesLength[1]);
             }
             
             for (var i = begin; i < group.PropertiesLength.Length; i++)
             {
                 if (group.IsLargeLength)
                 {
-                    writer.Write((uint)group.PropertiesLength[i]);
+                    Write(output, (uint)group.PropertiesLength[i]);
                 }
                 else
                 {
-                    writer.Write((ushort)group.PropertiesLength[i]);
+                    Write(output, (ushort)group.PropertiesLength[i]);
                 }
             }
             foreach (var item in data)
             {
-                item.CopyTo(writer.BaseStream);
+                item.CopyTo(output);
                 item.Dispose();
             }
-            writer.Flush();
+            output.Flush();
             Add(group);
             return entity.Id;
         }
@@ -281,7 +281,6 @@ namespace ZoDream.Shared.Database
         {
             var isOverwrite = output == BaseStream;
             output.Seek(0, SeekOrigin.Begin);
-            var writer = new BinaryWriter(output);
             var header = new FileHeader();
             var maps = new Dictionary<int, int>();
             var groups = new List<GroupRecord>();
@@ -305,7 +304,7 @@ namespace ZoDream.Shared.Database
             }
             header.EntryCount = entries.Count;
             header.GroupCount = groups.Count;
-            WriteHeader(writer, header);
+            WriteHeader(output, header);
             var index = GroupRecord.BeginIndex;
             if (_items.Count == 0)
             {
@@ -316,7 +315,7 @@ namespace ZoDream.Shared.Database
             var buffer = ArrayPool<byte>.Shared.Rent(maxBuffer);
             try
             {
-                var pos = writer.BaseStream.Position;
+                var pos = output.Position;
                 foreach (var item in groups.Order(this))
                 {
                     var id = index++;
@@ -325,14 +324,14 @@ namespace ZoDream.Shared.Database
                     var len = ReadRecord(buffer, item);
                     Debug.Assert(len == item.EntryLength);
                     buffer[0] = (byte)parentId;
-                    writer.BaseStream.Seek(pos, SeekOrigin.Begin);
-                    writer.Write(buffer, 0, len);
+                    output.Seek(pos, SeekOrigin.Begin);
+                    output.Write(buffer, 0, len);
                     if (isOverwrite)
                     {
                         item.SourceType = RecordSourceType.Original;
                         item.EntryOffset = pos;
                     }
-                    pos = writer.BaseStream.Position;
+                    pos = output.Position;
                 }
                 foreach (var item in entries.OrderBy(i => i.Id))
                 {
@@ -340,14 +339,14 @@ namespace ZoDream.Shared.Database
                     var len = ReadRecord(buffer, item);
                     Debug.Assert(len == item.EntryLength);
                     buffer[1] = (byte)groupId;
-                    writer.BaseStream.Seek(pos, SeekOrigin.Begin);
-                    writer.Write(buffer, 0, len);
+                    output.Seek(pos, SeekOrigin.Begin);
+                    output.Write(buffer, 0, len);
                     if (isOverwrite)
                     {
                         item.SourceType = RecordSourceType.Original;
                         item.EntryOffset = pos;
                     }
-                    pos = writer.BaseStream.Position;
+                    pos = output.Position;
                 }
             }
             finally
@@ -365,7 +364,7 @@ namespace ZoDream.Shared.Database
 
         private int ReadRecord(byte[] buffer, IRecordSource record, int offset, int count)
         {
-            var input = record.SourceType == RecordSourceType.Original ? BaseStream : Writer.BaseStream;
+            var input = record.SourceType == RecordSourceType.Original ? BaseStream : OutputStream;
             PrepareRead(input, record);
             input.Seek(record.EntryOffset + offset, SeekOrigin.Begin);
             return input.Read(buffer, 0, count);
@@ -395,19 +394,49 @@ namespace ZoDream.Shared.Database
             }
             else
             {
-                return new PartialStream(Writer.BaseStream, record.EntryOffset, record.EntryLength);
+                return new PartialStream(OutputStream, record.EntryOffset, record.EntryLength);
             }
         }
-        private void WriteHeader(BinaryWriter writer, FileHeader header)
+
+        private void ReadHeader(Stream input, FileHeader header)
+        {
+            input.Seek(0, SeekOrigin.Begin);
+            var buffer = ReadBytes(input, 4);
+            Debug.Assert(Encoding.ASCII.GetString(buffer) == FileHeader.Signature);
+            header.Version = (DatabaseVersion)input.ReadByte();
+            input.ReadExactly(header.ValidityCode);
+            header.GroupOffset = ReadUInt32(input);
+            header.GroupCount = ReadByte(input);
+            header.EntryOffset = ReadUInt32(input);
+            header.EntryCount = ReadUInt16(input);
+        }
+
+        private void WriteHeader(Stream output, FileHeader header)
         {
             header.ValidityCode = _cipher.Signature();
-            header.Write(writer);
+            output.Seek(0, SeekOrigin.Begin);
+            output.Write(Encoding.ASCII.GetBytes(FileHeader.Signature));
+            output.WriteByte((byte)header.Version);
+            output.Write(header.ValidityCode);
+            Write(output, (uint)header.GroupOffset);
+            Write(output, (byte)header.GroupCount);
+            Write(output, (uint)header.EntryOffset);
+            Write(output, (ushort)header.EntryCount);
             if (_cipher is ICipherIV c)
             {
-                c.Write(writer.BaseStream);
+                c.Write(output);
             }
-            header.GroupOffset = writer.BaseStream.Position;
-            header.Write(writer);
+            header.GroupOffset = output.Position;
+            WritePartHeader(output, header);
+        }
+
+        private void WritePartHeader(Stream output, FileHeader header)
+        {
+            output.Seek(21, SeekOrigin.Begin);
+            Write(output, (uint)header.GroupOffset);
+            Write(output, (byte)header.GroupCount);
+            Write(output, (uint)header.EntryOffset);
+            Write(output, (ushort)header.EntryCount);
         }
     }
 }

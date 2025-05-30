@@ -11,7 +11,7 @@ namespace ZoDream.Shared.Database
             
         }
 
-
+        public byte RandomKey => 0;
         public byte[] Decrypt(byte[] input)
         {
             for (int i = 0; i < input.Length; i++)
